@@ -11,7 +11,7 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 
 class Server:
     def __init__(self):
-        self.ip = '192.168.1.9'
+        self.ip = socket.gethostbyname(socket.gethostname())
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
