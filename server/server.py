@@ -1,8 +1,7 @@
-from multiprocessing import Event
 import socket
 import threading
 import json
-import time
+from db import Database
 
 # MESSAGE
 HEADER = 64
@@ -16,11 +15,12 @@ COMMAND_ORDER = "!ORDER"
 
 class Server:
     def __init__(self):
-        self.ip = '127.0.1.1'
+        self.ip = '127.0.0.1'
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(self.addr)
+        self.database = Database('restaurant.db')
 
     def start(self):
         self.server.listen(5)
@@ -34,7 +34,9 @@ class Server:
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
     def receive_menu_request(self, conn, addr):
-        menu = json.load(open("menu.json"))
+        #Get menu from database
+        menu = self.database.get_menu()
+        # print(menu)
         # Send back the menu to client
         conn.send(json.dumps(menu).encode(FORMAT))
 

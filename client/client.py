@@ -24,7 +24,7 @@ class Client:
         self.target_server_ip = input("Enter the server IP: ")
         self.port = int(input("Enter the server port: "))
         self.addr = (self.target_server_ip, self.port)
-        self.client.settimeout(5.0)
+        timeout = None
 
         disconnected = True
         print("[CONNECTING] Connecting to server...")
@@ -36,7 +36,7 @@ class Client:
                 print("[SUCCESS] Connected to server")
             except TimeoutError:
                 print("[ERROR] Connection timeout")
-                break
+                exit()
             except ConnectionRefusedError:
                 pass
             except ConnectionAbortedError:
@@ -54,7 +54,7 @@ class Client:
         request = self.encapsulate_request(COMMAND_ORDER, id)
         self.client.send(request)
 
-    def on_receive(self):
+    def on_receive_menu(self):
         while True:
             print("[WAITING] Waiting for response")
             try:

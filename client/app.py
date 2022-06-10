@@ -17,7 +17,7 @@ class App:
 
     def on_receive_menu(self):      
         self.client.request_menu()
-        self.text_box.configure(text=self.client.on_receive())
+        self.text_box.configure(text=self.client.on_receive_menu())
 
     def make_order(self):
         # Send the menu_id to server
