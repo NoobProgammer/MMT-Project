@@ -1,11 +1,15 @@
 import socket
 import json
+import threading
 
 # MESSAGE
 HEADER = 64
 FORMAT = "utf-8"
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
+# COMMAND
+COMMAND_INFO = "!INFO"
+COMMAND_ORDER = "!ORDER"
 
 class Client:
     def __init__(self):
@@ -21,13 +25,16 @@ class Client:
         self.addr = (self.target_server_ip, self.port)
         self.client.connect(self.addr)
 
-    def send(self, msg):
-        message = msg.encode(FORMAT)
-        send_length = str(len(message)).encode(FORMAT)
-        send_length += b' ' * (HEADER - len(send_length))
+    def encapsulate_request(self, header, data):
+        return json.dumps({"header": header, "data": data}).encode(FORMAT)
 
-        self.client.send(send_length)
-        self.client.send(message)
+    def request_menu(self):
+        request = self.encapsulate_request(COMMAND_INFO, "")
+        self.client.send(request)
+
+    def make_order(self, id):
+        request = self.encapsulate_request(COMMAND_ORDER, id)
+        self.client.send(request)
 
     def on_receive(self):
         while True:
@@ -44,3 +51,5 @@ class Client:
         for item in menu:
             message += f"{item['name']} - {item['price']} VND\n"
         return message
+
+    
