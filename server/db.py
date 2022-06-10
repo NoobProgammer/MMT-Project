@@ -1,7 +1,7 @@
 # import sqlite3
 
-# Comment out for later use
-# Will implement a database instead of json files
+# # Comment out for later use
+# # Will implement a database instead of json files
 
 
 # create_users_table_sql = """ CREATE TABLE IF NOT EXISTS users (
@@ -29,17 +29,17 @@
 #     FOREIGN KEY(menu_id) REFERENCES menu(id)
 # )"""
 
-# queries = [create_users_table_sql,
+# create_table_queries = [create_users_table_sql,
 #            create_menu_table_sql, create_orders_table_sql]
 
 
 # class Database:
-#     def __init__(self, db, create_table_queries):
+#     def __init__(self, db, create_table_create_table_queries):
 #         self.conn = sqlite3.connect(db)
 #         if (self.conn is not None):
 #             try:
 #                 self.cur = self.conn.cursor()
-#                 for query in create_table_queries:
+#                 for query in create_table_create_table_queries:
 #                     self.cur.execute(query)
 #             except OSError as e:
 #                 print(e)
@@ -48,7 +48,15 @@
 #     def fetch(self):
 #         pass
 
-    
+#     def insert(self):
+#         pass
+
+#     def update(self):
+#         pass
+
+#     def delete(self):
+#         pass
+
 
 # if __name__ == '__main__':
-#     db = Database('restaurant', queries)
+#     db = Database('restaurant', create_table_queries)

@@ -1,3 +1,4 @@
+from multiprocessing import Event
 import socket
 import threading
 import json
@@ -80,8 +81,12 @@ class Server:
                     self.receive_menu_request(conn, addr)
                 if (msg["header"] == COMMAND_ORDER):
                     self.receive_order_request(msg, addr)
-            except OSError as e:
-                print(e)
+            # except socket.error:
+            #     print(f"[ERROR] {addr} disconnected")
+            #     connected = False
+            except json.JSONDecodeError:
+                print(f"[DISCONNECTED] {addr} disconnected")
+                connected = False
 
         conn.close()
 
@@ -89,4 +94,7 @@ class Server:
 if __name__ == '__main__':
     server = Server()
     print("[STARTING] server is starting")
-    server.start()
+    try:
+        server.start()
+    except KeyboardInterrupt:
+        exit()

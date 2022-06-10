@@ -1,9 +1,7 @@
 from threading import Thread
 import tkinter as tk
 from tkinter import messagebox
-
-from requests import request
-from client.client import Client
+from client import Client
 
 #Client
 class App:
@@ -38,8 +36,11 @@ class App:
 
 
 if __name__ == "__main__":
-    app = App()
-    app.run()
+    try:
+        app = App()
+        app.run()
+    except KeyboardInterrupt:
+        exit()
 
 
 

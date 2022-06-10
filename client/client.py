@@ -1,6 +1,7 @@
 import socket
 import json
 import threading
+import time
 
 # MESSAGE
 HEADER = 64
@@ -23,7 +24,24 @@ class Client:
         self.target_server_ip = input("Enter the server IP: ")
         self.port = int(input("Enter the server port: "))
         self.addr = (self.target_server_ip, self.port)
-        self.client.connect(self.addr)
+        self.client.settimeout(5.0)
+
+        disconnected = True
+        print("[CONNECTING] Connecting to server...")
+        while disconnected:
+            try:
+                self.client.connect(self.addr)
+                # self.client.settimeout(None)
+                disconnected = False
+                print("[SUCCESS] Connected to server")
+            except TimeoutError:
+                print("[ERROR] Connection timeout")
+                break
+            except ConnectionRefusedError:
+                pass
+            except ConnectionAbortedError:
+                pass
+            
 
     def encapsulate_request(self, header, data):
         return json.dumps({"header": header, "data": data}).encode(FORMAT)
