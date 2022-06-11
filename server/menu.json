@@ -4,27 +4,27 @@
         "name": "Com trung",
         "price": 10000,
         "description": "Com trung ngon",
-        "image": ""
+        "image": "menu.png"
     },
     {
         "id": 1,
         "name": "Thit bo",
         "price": 25000,
         "description": "Thit bo ngon",
-        "image": ""
+        "image": "menu.png"
     },
     {
         "id": 2,
         "name": "Thit ga",
         "price": 30000,
         "description": "Thit ga ngon",
-        "image": ""
+        "image": "menu.png"
     },
     {
         "id": 3,
         "name": "Hu tieu",
         "price": 45000,
         "description": "Hu tieu ngon",
-        "image": ""
+        "image": "menu.png"
     }
 ]

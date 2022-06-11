@@ -96,25 +96,31 @@ if __name__ == '__main__':
     db = Database('restaurant.db')
     # Run code below only once to initiate database
 
-    # db.create_table(create_table_queries[0])
-    # db.create_table(create_table_queries[1])
-    # db.create_table(create_table_queries[2])
+    db.create_table(create_table_queries[0])
+    db.create_table(create_table_queries[1])
+    db.create_table(create_table_queries[2])
 
-    # db.insert_food({
-    #     'name': 'Pizza',
-    #     'price': 100,
-    #     'description': 'This is a pizza',
-    #     'image': 'some image'
-    # })
-    # db.insert_food({
-    #     'name': 'Pasta',
-    #     'price': 200,
-    #     'description': 'This is a pasta',
-    #     'image': 'some image'
-    # })
-    # db.insert_food({
-    #     'name': 'Salad',
-    #     'price': 300,
-    #     'description': 'This is a salad',
-    #     'image': 'some image'
-    # })
+    db.insert_food({
+        'name': 'Pizza',
+        'price': 100,
+        'description': 'This is a pizza',
+        'image': 'some image'
+    })
+    db.insert_food({
+        'name': 'Pasta',
+        'price': 200,
+        'description': 'This is a pasta',
+        'image': 'some image'
+    })
+    db.insert_food({
+        'name': 'Salad',
+        'price': 300,
+        'description': 'This is a salad',
+        'image': 'some image'
+    })
+    db.insert_food({
+        'name': 'Rice',
+        'price': 400,
+        'description': 'This is rice',
+        'image': 'some image'
+    })

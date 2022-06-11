@@ -60,7 +60,7 @@ class Client:
             try:
                 menu = json.loads(self.client.recv(1024).decode(FORMAT))
                 print("[SUCCESS] Received menu")
-                return self.format_menu(menu)
+                return menu
             except OSError: 
                 break
 
