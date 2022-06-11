@@ -1,4 +1,5 @@
 import sqlite3
+import base64
 
 # Comment out for later use
 # Will implement a database instead of json files
@@ -51,10 +52,14 @@ class Database:
         self.cur.execute(query)
         self.conn.commit()
 
-    def insert_food(self, food):
+    def insert_food(self, food, img_path):
+        # Convert image to string
+        with open(img_path, "rb") as file:
+            converted_string = base64.b64encode(file.read())
+    
         self.conn.execute(
             "INSERT INTO menu (name, price, description, image) VALUES (?, ?, ?, ?)",
-            (food['name'], food['price'], food['description'], food['image'])
+            (food['name'], food['price'], food['description'], converted_string)
         )
         self.conn.commit()
 
@@ -76,7 +81,7 @@ class Database:
         return arr
 
     #Update section
-    def update(self):
+    def update_order(self):
         pass
 
     def delete_food(self, food_id):
@@ -100,27 +105,31 @@ if __name__ == '__main__':
     db.create_table(create_table_queries[1])
     db.create_table(create_table_queries[2])
 
-    db.insert_food({
-        'name': 'Pizza',
-        'price': 100,
-        'description': 'This is a pizza',
-        'image': 'some image'
-    })
-    db.insert_food({
-        'name': 'Pasta',
-        'price': 200,
-        'description': 'This is a pasta',
-        'image': 'some image'
-    })
-    db.insert_food({
-        'name': 'Salad',
-        'price': 300,
-        'description': 'This is a salad',
-        'image': 'some image'
-    })
-    db.insert_food({
-        'name': 'Rice',
-        'price': 400,
-        'description': 'This is rice',
-        'image': 'some image'
-    })
+    # db.insert_food({
+    #     'name': 'Pizza',
+    #     'price': 100,
+    #     'description': 'This is a pizza',
+    #     'image': 'some image'
+    # }, './img/1.jpg')
+    # db.insert_food({
+    #     'name': 'Pasta',
+    #     'price': 200,
+    #     'description': 'This is a pasta',
+    #     'image': 'some image'
+    # })
+    # db.insert_food({
+    #     'name': 'Salad',
+    #     'price': 300,
+    #     'description': 'This is a salad',
+    #     'image': 'some image'
+    # })
+    # db.insert_food({
+    #     'name': 'Rice',
+    #     'price': 400,
+    #     'description': 'This is rice',
+    #     'image': 'some image'
+    # })
+    # menu = db.get_menu()
+
+    # with open('./string.txt', 'w') as file:
+    #     file.write(menu[0]['image'].decode('utf-8'))

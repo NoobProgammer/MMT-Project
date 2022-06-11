@@ -50,8 +50,8 @@ class Client:
         request = self.encapsulate_request(COMMAND_INFO, "")
         self.client.send(request)
 
-    def make_order(self, id):
-        request = self.encapsulate_request(COMMAND_ORDER, id)
+    def make_order(self, order):
+        request = self.encapsulate_request(COMMAND_ORDER, order)
         self.client.send(request)
 
     def on_receive_menu(self):

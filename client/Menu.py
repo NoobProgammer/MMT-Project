@@ -2,6 +2,7 @@ from tkinter import ttk
 from tkinter import PhotoImage
 import tkinter as tk
 import Color
+import base64
 
 def scrollFrame(main_frame):
     my_canvas = tk.Canvas(main_frame)
@@ -33,6 +34,8 @@ def menuItem(frame, img, *arg):
     return frameItem
 
 def Menu(root, data):
+    def convert_str_to_img(img_str):
+        pass
     #set scroll screen:
     main_frame = tk.Frame(root)
     main_frame.place(x=0, y=50, width=500, height=750)
