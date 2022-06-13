@@ -1,3 +1,4 @@
+from pickle import NONE
 import tkinter as tk
 from threading import Thread
 import customtkinter as ctk
@@ -112,14 +113,8 @@ if __name__ == "__main__":
     #data = getData.Data(dataMenu)
 
     #order frame
-    order_frame_tuple = Order.Order(root, data) # This tuple is (Order frame, order_btn, order_data)
-    order_frame = order_frame_tuple[0]
+    order_frame = Order.Order(root, data, client.make_order)
     order_frame.place(x=0, y=50, width=500, height=750)
-
-    # Bind the 2nd tuple element to button
-    make_order_btn = order_frame_tuple[1]
-    # Change the command of the button to send the order to server
-    make_order_btn.configure(command=lambda: client.make_order(order_frame_tuple[2]))
 
     #menu frame
     menu_frame = Menu.Menu(root, data)
