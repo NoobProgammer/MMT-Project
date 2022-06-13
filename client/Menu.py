@@ -1,3 +1,4 @@
+from pickle import NONE
 from tkinter import ttk
 from tkinter import PhotoImage
 import tkinter as tk
@@ -42,11 +43,12 @@ def Menu(root, data):
 
     second_frame = scrollFrame(main_frame)
     #render list:
-    i = 0
-    for item in data:
-        MenuItem = menuItem(second_frame, item["image"], item["name"], item["price"], item["description"])
-        MenuItem.grid(row=i, column=0, pady=10)
-        i += 1
+    if (data != None):
+        i = 0
+        for item in data:
+            MenuItem = menuItem(second_frame, item["image"], item["name"], item["price"], item["description"])
+            MenuItem.grid(row=i, column=0, pady=10)
+            i += 1
 
     return main_frame
 
