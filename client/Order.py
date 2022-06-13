@@ -1,7 +1,8 @@
-from pickle import NONE
 from tkinter import ttk
 from tkinter import PhotoImage
 import tkinter as tk
+
+from pip import main
 
 # cart:
 data_order = []
@@ -73,11 +74,17 @@ def Order(root, data, make_order):
     btn_order = tk.Button(main_frame, text="Order", command=lambda: make_order(data_order))
     btn_order.place(x=0, y=0, width=100, height=50)
 
+    tk.Label(main_frame, text="Total price: ").place(x=120, y = 0, width=80, height=50)
+
+    #get total price from server:
+    total_price = 0 #call function getting total price from server
+    tk.Label(main_frame, text=total_price).place(x=195, y = 0, height=50)
+
+
     wrap_list = tk.Frame(main_frame)
     wrap_list.place(x=0, y=50, width=500, height=700)
     second_frame = scroll_frame(wrap_list)
 
-    print(data)
     # render list:
     if (data != None):
         i = 0

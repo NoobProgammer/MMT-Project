@@ -1,4 +1,3 @@
-from pickle import NONE
 from tkinter import ttk
 from tkinter import PhotoImage
 import tkinter as tk
