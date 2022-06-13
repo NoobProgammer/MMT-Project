@@ -52,14 +52,14 @@ class Database:
         self.cur.execute(query)
         self.conn.commit()
 
-    def insert_food(self, food, img_path):
+    def insert_food(self, food):
         # Convert image to string
-        with open(img_path, "rb") as file:
-            converted_string = base64.b64encode(file.read())
+        # with open(img_path, "rb") as file:
+        #     converted_string = base64.b64encode(file.read())
     
         self.conn.execute(
             "INSERT INTO menu (name, price, description, image) VALUES (?, ?, ?, ?)",
-            (food['name'], food['price'], food['description'], converted_string)
+            (food['name'], food['price'], food['description'], food['image'])
         )
         self.conn.commit()
 
@@ -105,12 +105,12 @@ if __name__ == '__main__':
     db.create_table(create_table_queries[1])
     db.create_table(create_table_queries[2])
 
-    # db.insert_food({
-    #     'name': 'Pizza',
-    #     'price': 100,
-    #     'description': 'This is a pizza',
-    #     'image': 'some image'
-    # }, './img/1.jpg')
+    db.insert_food({
+        'name': 'Pizza',
+        'price': 100,
+        'description': 'This is a pizza',
+        'image': '1.jpg'
+    })
     # db.insert_food({
     #     'name': 'Pasta',
     #     'price': 200,

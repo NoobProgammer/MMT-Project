@@ -55,12 +55,22 @@ class Client:
         self.client.send(request)
 
     def on_receive_menu(self):
+        index = 1
         while True:
             print("[WAITING] Waiting for response")
             try:
-                menu = json.loads(self.client.recv(1024).decode(FORMAT))
+                # menu = json.loads(self.client.recv(1024).decode(FORMAT))
+                with open (f"./img/{index}.png", "wb") as f:
+                    while(True):
+                        data = self.client.recv(2048)
+                        if data == b'!END':
+                            index += 1
+                            break
+                        else:
+                            f.write(data)
+
                 print("[SUCCESS] Received menu")
-                return menu
+                # return menu
             except OSError: 
                 break
 

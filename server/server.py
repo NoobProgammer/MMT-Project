@@ -1,6 +1,7 @@
 import socket
 import threading
 import json
+import os
 import time
 from db import Database
 
@@ -16,7 +17,7 @@ COMMAND_ORDER = "!ORDER"
 
 class Server:
     def __init__(self):
-        self.ip = '127.0.0.3'
+        self.ip = '127.0.0.1'
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,12 +38,21 @@ class Server:
     def handle_menu_request(self, conn, addr):
         #Get menu from database
         menu = self.database.get_menu()
-        #TODO: Fix bug send menu to client
-        for food in menu:
-            food['image'] = food['image'].decode('utf-8')
+        # Iterate every image
+        with os.scandir('./img') as it:
+            for file in it:
+                if file.is_file():
+                    f = open(file.path, "rb")
+                    l = f.read(2048)
+                    while (l):
+                        conn.send(l)
+                        l = f.read(2048)
+                    f.close()
+                    time.sleep(0.02)
+                    conn.send(b'!END')
+
         # Send back the menu to client
         # time.sleep(5)
-        conn.send(json.dumps(menu).encode(FORMAT))
 
     def handle_order_request(self, request, addr):
         ordered_food = request['data']
