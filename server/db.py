@@ -109,7 +109,7 @@ if __name__ == '__main__':
         'name': 'Pizza',
         'price': 100,
         'description': 'This is a pizza',
-        'image': '1.jpg'
+        'image': './1.jpg'
     })
     # db.insert_food({
     #     'name': 'Pasta',

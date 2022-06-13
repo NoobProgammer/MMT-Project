@@ -2,6 +2,7 @@ import socket
 import json
 import threading
 import time
+from struct import unpack
 
 # MESSAGE
 HEADER = 64
@@ -42,9 +43,11 @@ class Client:
             except ConnectionAbortedError:
                 pass
             
-
     def encapsulate_request(self, header, data):
         return json.dumps({"header": header, "data": data}).encode(FORMAT)
+
+    def request_menu_img(self):
+        pass
 
     def request_menu(self):
         request = self.encapsulate_request(COMMAND_INFO, "")
@@ -54,25 +57,72 @@ class Client:
         request = self.encapsulate_request(COMMAND_ORDER, order)
         self.client.send(request)
 
+    def on_receive_menu_test(self):
+        connected = True
+        while connected:
+            menu = json.loads(self.client.recv(1024).decode(FORMAT))
+            if (menu):
+                connected = False
+                print(menu)
+            
+        return menu
+        
     def on_receive_menu(self):
         index = 1
+        menu = []
         while True:
-            print("[WAITING] Waiting for response")
-            try:
-                # menu = json.loads(self.client.recv(1024).decode(FORMAT))
-                with open (f"./img/{index}.png", "wb") as f:
-                    while(True):
-                        data = self.client.recv(2048)
-                        if data == b'!END':
-                            index += 1
-                            break
-                        else:
-                            f.write(data)
+            bs = self.client.recv(8)
+            (length,) = unpack('>Q', bs)
+            data = b''
+            while len(data) < length:
+                # doing it in batches is generally better than trying
+                # to do it all in one go, so I believe.
+                to_read = length - len(data)
+                data += self.client.recv(
+                    4096 if to_read > 4096 else to_read)
+                with open(f"{index}.png", 'w') as fp:
+                    fp.write(data)
 
-                print("[SUCCESS] Received menu")
-                # return menu
-            except OSError: 
-                break
+                index += 1
+        # while True:
+        #     img_size = int(self.client.recv(2048).decode())
+        #     amount = 0
+        #     while amount < img_size:
+        #         with open(f"{index}.png", "wb") as f:
+        #             l = self.client.recv(2048)
+        #             # if (data == b'!END'):
+        #             #     f.close()
+        #             #     index+=1
+        #             # else:
+        #             f.write(l)
+        #             amount += len(l)
+        #             index+=1
+
+            
+
+
+            # print("[WAITING] Waiting for response")
+            # with open (f"./img/{index}.png", "wb") as f:
+            #     try:
+            #         while (True):
+            #             data = self.client.recv(2048)
+            #             if (data == b'!MENU_LIST'):
+            #                 print("[SUCCESS] Received menu list")
+            #                 menu = json.loads(self.client.recv(1024).decode(FORMAT))
+            #                 print(menu)
+            #             elif (data == b'!END'):
+            #                 index += 1
+            #                 break
+            #             elif (data == b'!MENU_IMG'):
+            #                 f.write(data)
+                        
+
+            #         print("[SUCCESS] Received menu image")
+            #         return menu
+            #     except OSError: 
+            #         break
+
+           
 
     def format_menu(self, menu):
         message = ""

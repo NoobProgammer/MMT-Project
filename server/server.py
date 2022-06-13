@@ -14,10 +14,11 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 COMMAND_INFO = "!INFO"
 COMMAND_ORDER = "!ORDER"
 
+from struct import pack
 
 class Server:
     def __init__(self):
-        self.ip = '127.0.0.1'
+        self.ip = '127.0.1.2'
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,23 +38,41 @@ class Server:
 
     def handle_menu_request(self, conn, addr):
         #Get menu from database
-        menu = self.database.get_menu()
+        # menu = self.database.get_menu()
+        # conn.send(b'!MENU_LIST')
+        # conn.send(json.dumps(menu).encode(FORMAT))
+        # time.sleep(0.5)
+
+    
+
         # Iterate every image
-        with os.scandir('./img') as it:
-            for file in it:
-                if file.is_file():
-                    f = open(file.path, "rb")
-                    l = f.read(2048)
-                    while (l):
-                        conn.send(l)
-                        l = f.read(2048)
-                    f.close()
-                    time.sleep(0.02)
-                    conn.send(b'!END')
+        # Send image first
+        # conn.send(b'!MENU_IMG')
+        # with os.scandir('./img') as it:
+        for file in os.scandir(path='./img'):
+            if file.is_file():
+                # use struct to make sure we have a consistent endianness on the length
+                with open(file.path, 'rb') as fp:
+                    image_data = fp.read()
+                length = pack('>Q', len(image_data))
 
-        # Send back the menu to client
-        # time.sleep(5)
+                # sendall to make sure it blocks if there's back-pressure on the socket
+                self.server.sendall(length)
+                self.server.sendall(image_data)
 
+                    # could handle a bad ack here, but we'll assume it's fine.
+                    # conn.send(str(img_size).encode())
+                    # f = open(file.path, "rb")
+                    # l = f.read(2048)
+                    # while (l):                        # time.sleep(0.01)
+                    #     conn.send(l)
+                    #     l = f.read(2048)
+                    # f.close()
+                    # time.sleep(0.05)
+                    # conn.send(b'!END')
+
+        # conn.send(b'!DONE')
+                
     def handle_order_request(self, request, addr):
         ordered_food = request['data']
         f = open("orders.json")
@@ -73,6 +92,7 @@ class Server:
     # Handle connection with client
     # conn is the connection
     # addr is the address of the client
+    # Handle jobs according to client request
     def handle_client(self, conn, addr):
         print(f"[NEW CONNECTION] {addr} connected")
 
@@ -83,8 +103,10 @@ class Server:
                 if (msg["header"] == COMMAND_INFO):
                     print(f"[INFO] {addr} requested menu")
                     self.handle_menu_request(conn, addr)
+                    #self.handle_menu_img_request(conn, addr)
                 if (msg["header"] == COMMAND_ORDER):
                     self.handle_order_request(msg, addr)
+
             # except socket.error:
             #     print(f"[ERROR] {addr} disconnected")
             #     connected = False
