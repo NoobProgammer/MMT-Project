@@ -37,41 +37,33 @@ class Server:
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
     def handle_menu_request(self, conn, addr):
-        #Get menu from database
-        # menu = self.database.get_menu()
-        # conn.send(b'!MENU_LIST')
-        # conn.send(json.dumps(menu).encode(FORMAT))
-        # time.sleep(0.5)
+        #Get menu list from database then send to client
+        menu = self.database.get_menu()
+        conn.send(b'!MENU_LIST')
+        time.sleep(0.001)
+        conn.send(json.dumps(menu).encode())
+        time.sleep(0.001)
+        conn.send(b'!END_MENU_LIST')
+        time.sleep(0.001)
 
-    
-
-        # Iterate every image
-        # Send image first
-        # conn.send(b'!MENU_IMG')
-        # with os.scandir('./img') as it:
+        # Iterate image and send to client
         for file in os.scandir(path='./img'):
             if file.is_file():
-                # use struct to make sure we have a consistent endianness on the length
-                with open(file.path, 'rb') as fp:
-                    image_data = fp.read()
-                length = pack('>Q', len(image_data))
-
-                # sendall to make sure it blocks if there's back-pressure on the socket
-                self.server.sendall(length)
-                self.server.sendall(image_data)
-
-                    # could handle a bad ack here, but we'll assume it's fine.
-                    # conn.send(str(img_size).encode())
-                    # f = open(file.path, "rb")
-                    # l = f.read(2048)
-                    # while (l):                        # time.sleep(0.01)
-                    #     conn.send(l)
-                    #     l = f.read(2048)
-                    # f.close()
-                    # time.sleep(0.05)
-                    # conn.send(b'!END')
-
-        # conn.send(b'!DONE')
+                conn.send(b'!MENU_IMG')
+                time.sleep(0.01)
+                f = open(file.path, 'rb')
+                bytes = f.read(1024)
+                while bytes:
+                    conn.send(bytes)
+                    bytes = f.read(1024)
+                
+                f.close()
+                time.sleep(0.05)
+                conn.send(b'!END_IMG')
+            time.sleep(0.05)
+        # Done everything, send end message
+        time.sleep(0.01)
+        conn.send(b'!DONE')
                 
     def handle_order_request(self, request, addr):
         ordered_food = request['data']
@@ -87,7 +79,7 @@ class Server:
         orders.append(order)
         with open("orders.json", "w") as f:
             json.dump(orders, f)
-
+        f.close()
 
     # Handle connection with client
     # conn is the connection
@@ -95,7 +87,6 @@ class Server:
     # Handle jobs according to client request
     def handle_client(self, conn, addr):
         print(f"[NEW CONNECTION] {addr} connected")
-
         connected = True
         while connected:
             try:

@@ -109,7 +109,6 @@ if __name__ == "__main__":
     #get data from server:
     client.request_menu()
     data = client.on_receive_menu()
-    #client.on_receive_menu_img()
     #data = getData.Data(dataMenu)
 
     #order frame
