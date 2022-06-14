@@ -2,6 +2,7 @@ import socket
 import json
 import threading
 import time
+from struct import unpack
 
 # MESSAGE
 HEADER = 64
@@ -24,7 +25,6 @@ class Client:
         self.target_server_ip = input("Enter the server IP: ")
         self.port = int(input("Enter the server port: "))
         self.addr = (self.target_server_ip, self.port)
-        timeout = None
 
         disconnected = True
         print("[CONNECTING] Connecting to server...")
@@ -42,7 +42,6 @@ class Client:
             except ConnectionAbortedError:
                 pass
             
-
     def encapsulate_request(self, header, data):
         return json.dumps({"header": header, "data": data}).encode(FORMAT)
 
@@ -57,24 +56,33 @@ class Client:
 
     def on_receive_menu(self):
         index = 1
+        print('[WAITING] Waiting for menu response')
         while True:
-            print("[WAITING] Waiting for response")
-            try:
-                # menu = json.loads(self.client.recv(1024).decode(FORMAT))
-                with open (f"./img/{index}.png", "wb") as f:
-                    while(True):
-                        data = self.client.recv(2048)
-                        if data == b'!END':
+            msg = self.client.recv(1024)
+            # Check msg type
+            if (msg == b'!MENU_LIST'):
+                # Receive menu list
+                while True:
+                    msg = self.client.recv(1024)
+                    if (msg != b'!END_MENU_LIST'):
+                        print('[RECEIVED] Menu received')
+                        menu = json.loads(msg.decode(FORMAT))
+                        print(menu)
+                    else:
+                        break       
+            elif (msg == b'!MENU_IMG'):
+                with open(f"./img/{index}.jpg", "wb") as f:
+                    while True:
+                        msg = self.client.recv(1024)
+                        if (msg == b'!END_IMG'):
                             index += 1
                             break
                         else:
-                            f.write(data)
-
-                print("[SUCCESS] Received menu")
-                # return menu
-            except OSError: 
-                break
-
+                            f.write(msg)
+            elif(msg == b'!DONE'):
+                print('[DONE] Receiving process done')
+                return menu
+ 
     def format_menu(self, menu):
         message = ""
         for item in menu:

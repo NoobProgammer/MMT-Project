@@ -14,6 +14,7 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 COMMAND_INFO = "!INFO"
 COMMAND_ORDER = "!ORDER"
 
+from struct import pack
 
 class Server:
     def __init__(self):
@@ -36,24 +37,34 @@ class Server:
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
     def handle_menu_request(self, conn, addr):
-        #Get menu from database
+        #Get menu list from database then send to client
         menu = self.database.get_menu()
-        # Iterate every image
-        with os.scandir('./img') as it:
-            for file in it:
-                if file.is_file():
-                    f = open(file.path, "rb")
-                    l = f.read(2048)
-                    while (l):
-                        conn.send(l)
-                        l = f.read(2048)
-                    f.close()
-                    time.sleep(0.02)
-                    conn.send(b'!END')
+        conn.send(b'!MENU_LIST')
+        time.sleep(0.001)
+        conn.send(json.dumps(menu).encode())
+        time.sleep(0.001)
+        conn.send(b'!END_MENU_LIST')
+        time.sleep(0.001)
 
-        # Send back the menu to client
-        # time.sleep(5)
-
+        # Iterate image and send to client
+        for file in os.scandir(path='./img'):
+            if file.is_file():
+                conn.send(b'!MENU_IMG')
+                time.sleep(0.01)
+                f = open(file.path, 'rb')
+                bytes = f.read(1024)
+                while bytes:
+                    conn.send(bytes)
+                    bytes = f.read(1024)
+                
+                f.close()
+                time.sleep(0.05)
+                conn.send(b'!END_IMG')
+            time.sleep(0.05)
+        # Done everything, send end message
+        time.sleep(0.01)
+        conn.send(b'!DONE')
+                
     def handle_order_request(self, request, addr):
         ordered_food = request['data']
         f = open("orders.json")
@@ -68,14 +79,14 @@ class Server:
         orders.append(order)
         with open("orders.json", "w") as f:
             json.dump(orders, f)
-
+        f.close()
 
     # Handle connection with client
     # conn is the connection
     # addr is the address of the client
+    # Handle jobs according to client request
     def handle_client(self, conn, addr):
         print(f"[NEW CONNECTION] {addr} connected")
-
         connected = True
         while connected:
             try:
@@ -83,8 +94,10 @@ class Server:
                 if (msg["header"] == COMMAND_INFO):
                     print(f"[INFO] {addr} requested menu")
                     self.handle_menu_request(conn, addr)
+                    #self.handle_menu_img_request(conn, addr)
                 if (msg["header"] == COMMAND_ORDER):
                     self.handle_order_request(msg, addr)
+
             # except socket.error:
             #     print(f"[ERROR] {addr} disconnected")
             #     connected = False
