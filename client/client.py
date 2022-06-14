@@ -45,9 +45,6 @@ class Client:
     def encapsulate_request(self, header, data):
         return json.dumps({"header": header, "data": data}).encode(FORMAT)
 
-    def request_menu_img(self):
-        pass
-
     def request_menu(self):
         request = self.encapsulate_request(COMMAND_INFO, "")
         self.client.send(request)
@@ -58,6 +55,7 @@ class Client:
 
     def on_receive_menu(self):
         index = 1
+        print('[WAITING] Waiting for menu response')
         while True:
             msg = self.client.recv(1024)
             # Check msg type
@@ -66,11 +64,11 @@ class Client:
                 while True:
                     msg = self.client.recv(1024)
                     if (msg != b'!END_MENU_LIST'):
+                        print('[RECEIVED] Menu received')
                         menu = json.loads(msg.decode(FORMAT))
                         print(menu)
                     else:
-                        break
-                    
+                        break       
             elif (msg == b'!MENU_IMG'):
                 with open(f"./img/{index}.jpg", "wb") as f:
                     while True:
@@ -81,9 +79,9 @@ class Client:
                         else:
                             f.write(msg)
             elif(msg == b'!DONE'):
+                print('[DONE] Receiving process done')
                 return menu
-
-                    
+ 
     def format_menu(self, menu):
         message = ""
         for item in menu:

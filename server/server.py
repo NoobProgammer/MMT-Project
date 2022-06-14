@@ -18,7 +18,7 @@ from struct import pack
 
 class Server:
     def __init__(self):
-        self.ip = '127.0.1.2'
+        self.ip = '127.0.0.1'
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
