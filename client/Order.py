@@ -2,6 +2,8 @@ from tkinter import ttk
 from tkinter import PhotoImage
 import tkinter as tk
 
+from pip import main
+
 # cart:
 data_order = []
 
@@ -63,24 +65,32 @@ def list_item(root, name, id):
 # order frame:
 
 
-def Order(root, data):
+def Order(root, data, make_order):
     # set scroll screen:
     main_frame = tk.Frame(root)
     main_frame.place(x=0, y=50, width=500, height=750)
 
     # click to order:
-    btn_order = tk.Button(main_frame, text="Order")
+    btn_order = tk.Button(main_frame, text="Order", command=lambda: make_order(data_order))
     btn_order.place(x=0, y=0, width=100, height=50)
+
+    tk.Label(main_frame, text="Total price: ").place(x=120, y = 0, width=80, height=50)
+
+    #get total price from server:
+    total_price = 0 #call function getting total price from server
+    tk.Label(main_frame, text=total_price).place(x=195, y = 0, height=50)
+
 
     wrap_list = tk.Frame(main_frame)
     wrap_list.place(x=0, y=50, width=500, height=700)
     second_frame = scroll_frame(wrap_list)
 
     # render list:
-    i = 0
-    for item in data:
-        list_item(second_frame, item["name"], item["id"]).grid(
-            row=i, column=0, pady=10, ipadx=5)
-        i += 1
+    if (data != None):
+        i = 0
+        for item in data:
+            list_item(second_frame, item["name"], item["id"]).grid(
+                row=i, column=0, pady=10, ipadx=5)
+            i += 1
     # Return (Order frame, order_btn, order_data)
-    return (main_frame, btn_order, data_order)
+    return main_frame
