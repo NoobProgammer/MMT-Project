@@ -109,25 +109,31 @@ if __name__ == '__main__':
         'name': 'Pizza',
         'price': 100,
         'description': 'This is a pizza',
-        'image': '1.png'
+        'image': 'img/1.jpg'
     })
     db.insert_food({
         'name': 'Pasta',
         'price': 200,
         'description': 'This is a pasta',
-        'image': '2.png'
+        'image': 'img/2.jpg'
     })
     db.insert_food({
         'name': 'Salad',
         'price': 300,
         'description': 'This is a salad',
-        'image': '3.png'
+        'image': 'img/3.jpg'
     })
     db.insert_food({
         'name': 'Rice',
         'price': 400,
         'description': 'This is rice',
-        'image': '4.png'
+        'image': 'img/4.jpg'
+    })
+    db.insert_food({
+        'name': 'Chicken',
+        'price': 500,
+        'description': 'This is Chicken',
+        'image': 'img/5.jpg'
     })
     # menu = db.get_menu()
 
