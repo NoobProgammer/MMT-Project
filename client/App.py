@@ -7,7 +7,8 @@ import Menu
 import Order
 import Pay
 import Color
-from client import Client        
+import getData
+from client import Client    
 
 #show frame:
 def show_menu_frame():
@@ -75,9 +76,20 @@ if __name__ == "__main__":
     pay_btn.place(x=332, y=0, width=166, height=50)
 
     #get data from server:
+    data = None
     client.request_menu()
-    data = client.on_receive_menu()
-    #data = getData.Data(dataMenu)
+
+    def receiveMenu():
+        while True:
+            global data
+            global menu_frame
+            global order_frame
+            dataMenu = client.on_receive_menu()
+            data = getData.Data(dataMenu)
+            order_frame = Order.Order(root, data, client.make_order)
+            menu_frame = Menu.Menu(root, data)
+
+    Thread(target=receiveMenu).start()
 
     #pay frame
     pay_frame = Pay.Pay(root)
@@ -87,9 +99,8 @@ if __name__ == "__main__":
     order_frame = Order.Order(root, data, client.make_order)
     order_frame.place(x=0, y=50, width=500, height=750)
 
-    #menu frame
+    #menu frame:
     menu_frame = Menu.Menu(root, data)
     menu_frame.place(x=0, y=50, width=500, height=750)
-
     # window in mainloop:
     root.mainloop()

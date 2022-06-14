@@ -1,5 +1,4 @@
 from tkinter import ttk
-from tkinter import PhotoImage
 import tkinter as tk
 import Color
 import base64
@@ -22,7 +21,7 @@ def menuItem(frame, img, *arg):
     frameItem = tk.Frame(frame, width=500, height=60)
 
     #dish image:
-    imgLabel = tk.Label(frameItem, text="IMG") #faile to display image
+    imgLabel = tk.Label(frameItem, image=img)
     imgLabel.place(x=0, y=0, width=60, height=60)
     
     frameInfo = tk.Frame(frameItem, width=500, height=60)
@@ -34,8 +33,6 @@ def menuItem(frame, img, *arg):
     return frameItem
 
 def Menu(root, data):
-    def convert_str_to_img(img_str):
-        pass
     #set scroll screen:
     main_frame = tk.Frame(root)
     main_frame.place(x=0, y=50, width=500, height=750)

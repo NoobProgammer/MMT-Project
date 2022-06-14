@@ -50,9 +50,8 @@ class Client:
         self.client.send(request)
 
     def make_order(self, order):
-        print (order)
-        # request = self.encapsulate_request(COMMAND_ORDER, order)
-        # self.client.send(request)
+        request = self.encapsulate_request(COMMAND_ORDER, order)
+        self.client.send(request)
 
     def on_receive_menu(self):
         index = 1
@@ -67,7 +66,6 @@ class Client:
                     if (msg != b'!END_MENU_LIST'):
                         print('[RECEIVED] Menu received')
                         menu = json.loads(msg.decode(FORMAT))
-                        print(menu)
                     else:
                         break       
             elif (msg == b'!MENU_IMG'):
