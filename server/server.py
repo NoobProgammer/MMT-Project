@@ -18,7 +18,7 @@ from struct import pack
 
 class Server:
     def __init__(self):
-        self.ip = '127.0.0.2'
+        self.ip = '127.0.0.1'
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -67,21 +67,21 @@ class Server:
         conn.send(b'!DONE')
                 
     def handle_order_request(self, request, addr):
-        ordered_food = request['data']
-        f = open("orders.json")
-        orders = json.load(f)
-
-        order = {
-            "order_id": 1,
-            "user_id": addr,
-            "food": ordered_food
-        }
-
-        orders.append(order)
-        with open("orders.json", "w") as f:
-            json.dump(orders, f)
-        f.close()
-
+        print(f"[ORDER] {addr} made an order")
+        print(request)
+        print('----------------------------------------------------')
+        orderData = request['data']
+        print(orderData)
+        user_id = orderData['user_id']
+        date = orderData['date']
+        order = orderData['order']
+        self.database.insert_order(user_id, date, order)
+        total = self.database.conn.execute("SELECT total FROM orders WHERE user_id = ? AND date = ?", (user_id, date)).fetchone()[0]
+        time.sleep(0.01)
+        
+        return total
+        
+       
     # Handle connection with client
     # conn is the connection
     # addr is the address of the client
@@ -97,7 +97,11 @@ class Server:
                     self.handle_menu_request(conn, addr)
                     #self.handle_menu_img_request(conn, addr)
                 if (msg["header"] == COMMAND_ORDER):
-                    self.handle_order_request(msg, addr)
+                    total_calculated = self.handle_order_request(msg, addr)
+                    conn.send(str(total_calculated).encode(FORMAT))
+                    print(f"[ORDER] total calculated: {total_calculated}")
+                    time.sleep(0.01)
+                    
 
             # except socket.error:
             #     print(f"[ERROR] {addr} disconnected")
@@ -116,3 +120,5 @@ if __name__ == '__main__':
         server.start()
     except KeyboardInterrupt:
         exit()
+        
+    

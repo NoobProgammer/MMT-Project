@@ -3,12 +3,14 @@ import json
 import threading
 import time
 from struct import unpack
+import datetime
+  
 
 # MESSAGE
 HEADER = 64
 FORMAT = "utf-8"
 DISCONNECT_MESSAGE = "!DISCONNECT"
-
+USER_ID = "TABLE001"
 # COMMAND
 COMMAND_INFO = "!INFO"
 COMMAND_ORDER = "!ORDER"
@@ -50,8 +52,15 @@ class Client:
         self.client.send(request)
 
     def make_order(self, order):
-        request = self.encapsulate_request(COMMAND_ORDER, order)
+        orderData = {
+            "user_id": USER_ID,
+            "date": str(datetime.datetime.now()),
+            'order': order
+        }
+        request = self.encapsulate_request(COMMAND_ORDER, orderData)
         self.client.send(request)
+        
+            
 
     def on_receive_menu(self):
         index = 1
