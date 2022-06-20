@@ -4,6 +4,7 @@ import threading
 import time
 from struct import unpack
 from datetime import datetime
+from tkinter.messagebox import NO
   
 
 # MESSAGE
@@ -14,6 +15,7 @@ USER_ID = "TABLE001"
 # COMMAND
 COMMAND_INFO = "!INFO"
 COMMAND_ORDER = "!ORDER"
+COMMAND_PAYMENT = "!PAYMENT"
 
 class Client:
     def __init__(self):
@@ -63,14 +65,30 @@ class Client:
         request = self.encapsulate_request(COMMAND_ORDER, order_data)
         self.client.send(request)
 
-    def on_receive_order_price(self):
+    def make_payment(self, order_id, option, card_details = None):
+        request = self.encapsulate_request(COMMAND_PAYMENT, {"order_id": order_id, "option": option, "card_details": card_details})
+        self.client.send(request)
+
+    def on_receive_payment_status(self):
+        print('[WAITING] Waiting for payment status response')
+        while True:
+            msg = self.client.recv(1024)
+            if (msg == b'!PAYMENT_FAIL'):
+                failed_msg = "YOUR CARD IS NOT LEGIT, PLEASE REENTER"
+                return failed_msg
+
+    def on_receive_order(self):
         print('[WAITING] Waiting for order response')
         while True:
             msg = self.client.recv(1024)
             if (msg == b'!TOTAL_PRICE'):
                 msg = self.client.recv(1024)
                 total_price = json.loads(msg.decode())
-                return total_price
+            elif (msg == b'!ORDER_ID'):
+                msg = self.client.recv(1024)
+                order_id = json.loads(msg.decode())
+            elif (msg == b'!ORDER_DONE'):
+                return (total_price, order_id)
         
     def on_receive_menu(self):
         file_index = 1
@@ -96,10 +114,10 @@ class Client:
                             break
                         else:
                             f.write(msg)
-            elif(msg == b'!DONE'):
+            elif(msg == b'!MENU_DONE'):
                 print('[DONE] Receiving menu process done')
                 return menu
- 
+
     def format_menu(self, menu):
         message = ""
         for item in menu:

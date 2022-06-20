@@ -103,7 +103,7 @@ class Database:
         return self.conn.execute(f"SELECT total FROM orders WHERE id = '{order_id}'").fetchone()[0]
 
     # Update section
-    def update_order(self, order_id):
+    def update_done(self, order_id):
         date = self.conn.execute(
             f"SELECT date FROM orders WHERE id = '{order_id}'").fetchone()[0]
         date = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S")
@@ -113,9 +113,12 @@ class Database:
             self.conn.execute(
                 f"UPDATE orders SET done = 1 WHERE id = '{order_id}'")
 
-    def update_order(self):
-        pass
-
+    def update_order_paid_status(self, order_id, is_paid):
+        if (is_paid):
+            self.conn.execute(
+                f"UPDATE orders SET paid = 1 WHERE id = '{order_id}'")
+            
+    # Delete section
     def delete_food(self, food_id):
         self.conn.execute(
             "DELETE FROM menu WHERE id = ?", (food_id)

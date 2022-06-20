@@ -3,6 +3,8 @@ import threading
 import json
 import os
 import time
+import re
+from client.client import COMMAND_PAYMENT
 from db import Database
 from datetime import datetime
 
@@ -14,8 +16,10 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 # COMMAND
 COMMAND_INFO = "!INFO"
 COMMAND_ORDER = "!ORDER"
+COMMAND_PAYMENT = "!PAYMENT"
 
-from struct import pack
+# # CARD REGEX
+# CARD_REGEX = "^\d{10}$"
 
 class Server:
     def __init__(self):
@@ -36,6 +40,16 @@ class Server:
             thread = threading.Thread(target=self.handle_client, args=(conn, addr))
             thread.start()
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+
+    def send_total_price(self, conn, addr, total_price):
+        conn.send(b'!TOTAL_PRICE')
+        time.sleep(0.01)
+        conn.send(str(total_price).encode(FORMAT))
+
+    def send_order_id(self, conn, addr, order_id):
+        conn.send(b'!ORDER_ID')
+        time.sleep(0.01)
+        conn.send(str(order_id).encode(FORMAT))
 
     def handle_menu_request(self, conn, addr):
         time.sleep(1)
@@ -65,7 +79,7 @@ class Server:
             time.sleep(0.05)
         # Done everything, send end message
         time.sleep(0.01)
-        conn.send(b'!DONE')
+        conn.send(b'!MENU_DONE')
                 
     def handle_order_request(self, conn, addr, request):
         order_data = request['data']
@@ -86,11 +100,26 @@ class Server:
 
         time.sleep(0.01)
         self.send_total_price(conn, addr, order_total_price)
-
-    def send_total_price(self, conn, addr, total_price):
-        conn.send(b'!TOTAL_PRICE')
         time.sleep(0.01)
-        conn.send(str(total_price).encode(FORMAT))
+        self.send_order_id(conn, addr, order_id)
+        time.sleep(0.01)
+        conn.send(b'!ORDER_DONE')
+
+    def handle_payment_request(self, conn, addr, request):
+        payment_option = request['data']["option"]
+        order_id = request['data']["order_id"]
+
+        if (payment_option == 'cash'):
+            print(f"[PAYMENT] {addr} paid by cash")
+            self.database.update_order_paid_status(order_id, True)
+    
+        elif (payment_option == 'card'):
+            card_details = str(request['data']["card_details"])
+            if (card_details.isnumeric() and len(card_details) == 10 and card_details[0] != '0'):
+                print(f"[PAYMENT] {addr} paid by card")
+                self.database.update_order_paid_status(order_id, True)
+            else:
+                conn.send(b'!PAYMENT_FAIL')
 
     # Handle connection with client
     # conn is the connection
@@ -108,9 +137,13 @@ class Server:
                     print(f"[INFO] {addr} requested menu")
                     self.handle_menu_request(conn, addr)
 
-                if (msg["header"] == COMMAND_ORDER):
+                elif (msg["header"] == COMMAND_ORDER):
                     print(f"[ORDER] {addr} made an order")
                     self.handle_order_request(conn, addr, msg)
+
+                elif (msg["header"] == COMMAND_PAYMENT):
+                    print(f"[PAYMENT] {addr} paid")
+                    self.handle_payment_request(conn, addr, msg)
                     
             except socket.error:
                 print(f"[ERROR] {addr} disconnected")
