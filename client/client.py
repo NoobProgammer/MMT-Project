@@ -57,6 +57,7 @@ class Client:
         self.client.send(request)
 
     def make_order(self, order):
+
         order_data = {
             "user_id": USER_ID,
             "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
@@ -64,6 +65,9 @@ class Client:
         }
         request = self.encapsulate_request(COMMAND_ORDER, order_data)
         self.client.send(request)
+
+          
+
 
     def make_payment(self, order_id, option, card_details = None):
         request = self.encapsulate_request(COMMAND_PAYMENT, {"order_id": order_id, "option": option, "card_details": card_details})

@@ -88,6 +88,7 @@ if __name__ == "__main__":
             data = getData.Data(dataMenu)
             order_frame = Order.Order(root, data, client.make_order)
             menu_frame = Menu.Menu(root, data)
+            show_menu_frame()
 
     Thread(target=receiveMenu).start()
 

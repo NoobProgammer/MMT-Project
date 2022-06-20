@@ -23,7 +23,9 @@ COMMAND_PAYMENT = "!PAYMENT"
 
 class Server:
     def __init__(self):
+
         self.ip = socket.gethostbyname(socket.gethostname()) or '127.0.0.1'
+
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -52,7 +54,9 @@ class Server:
         conn.send(str(order_id).encode(FORMAT))
 
     def handle_menu_request(self, conn, addr):
+
         time.sleep(1)
+
         #Get menu list from database then send to client
         menu = self.database.get_menu()
         conn.send(b'!MENU_LIST')

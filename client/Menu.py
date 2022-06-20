@@ -3,7 +3,7 @@ import tkinter as tk
 import Color
 import base64
 
-def scrollFrame(main_frame):
+def scrollFrame(main_frame, width):
     my_canvas = tk.Canvas(main_frame)
     my_canvas.pack(side=tk.LEFT ,fill=tk.BOTH, expand=True)
 
@@ -13,7 +13,7 @@ def scrollFrame(main_frame):
     my_canvas.configure(yscrollcommand=my_scrollbar.set)
     my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion=my_canvas.bbox('all')))
 
-    second_frame = tk.Frame(my_canvas, width=500)
+    second_frame = tk.Frame(my_canvas, width=width)
     my_canvas.create_window((0,0), window=second_frame, anchor="nw")
     return second_frame
 
@@ -37,7 +37,7 @@ def Menu(root, data):
     main_frame = tk.Frame(root)
     main_frame.place(x=0, y=50, width=500, height=750)
 
-    second_frame = scrollFrame(main_frame)
+    second_frame = scrollFrame(main_frame, 500)
     #render list:
     if (data != None):
         i = 0
