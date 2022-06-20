@@ -104,3 +104,4 @@ if __name__ == "__main__":
     menu_frame.place(x=0, y=50, width=500, height=750)
     # window in mainloop:
     root.mainloop()
+    

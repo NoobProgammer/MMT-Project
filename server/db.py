@@ -37,11 +37,8 @@ create_orders_detail_table_sql = """ CREATE TABLE IF NOT EXISTS orders_detail (
     
 )"""
 
-
 create_table_queries = [create_users_table_sql,
-           create_menu_table_sql, create_orders_table_sql, create_orders_detail_table_sql]
-
-
+                        create_menu_table_sql, create_orders_table_sql, create_orders_detail_table_sql]
 class Database:
     def __init__(self, db):
         self.conn = sqlite3.connect(db, check_same_thread=False)
@@ -55,7 +52,7 @@ class Database:
     def fetch(self):
         pass
 
-    #Create section
+    # Create section
     def create_table(self, query):
         self.cur.execute(query)
         self.conn.commit()
@@ -64,7 +61,7 @@ class Database:
         # Convert image to string
         # with open(img_path, "rb") as file:
         #     converted_string = base64.b64encode(file.read())
-    
+
         self.conn.execute(
             "INSERT INTO menu (name, price, description, image) VALUES (?, ?, ?, ?)",
             (food['name'], food['price'], food['description'], food['image'])
@@ -72,12 +69,17 @@ class Database:
         self.conn.commit()
 
     def insert_order(self, user_id, date, order):
-        self.conn.execute(f"INSERT INTO orders (user_id, date, total) VALUES ('{user_id}', '{date}', 999999999999)")
-        order_id = self.conn.execute(f"SELECT id FROM orders WHERE user_id = '{user_id}' AND date = '{date}'").fetchone()[0]
+        self.conn.execute(
+            f"INSERT INTO orders (user_id, date, total) VALUES ('{user_id}', '{date}', 999999999999)")
+        order_id = self.conn.execute(
+            f"SELECT id FROM orders WHERE user_id = '{user_id}' AND date = '{date}'").fetchone()[0]
         for food in order:
-            self.conn.execute(f"INSERT INTO orders_detail (order_id, menu_id, quantity) VALUES ('{order_id}', '{food['id']}', '{food['quantity']}')")
-        total = self.conn.execute(f"SELECT SUM(menu.price * orders_detail.quantity) FROM orders_detail INNER JOIN menu ON orders_detail.menu_id = menu.id WHERE orders_detail.order_id = '{order_id}'").fetchone()[0]
-        self.conn.execute(f"UPDATE orders SET total = '{total}' WHERE id = '{order_id}'")
+            self.conn.execute(
+                f"INSERT INTO orders_detail (order_id, menu_id, quantity) VALUES ('{order_id}', '{food['id']}', '{food['quantity']}')")
+        total = self.conn.execute(
+            f"SELECT SUM(menu.price * orders_detail.quantity) FROM orders_detail INNER JOIN menu ON orders_detail.menu_id = menu.id WHERE orders_detail.order_id = '{order_id}'").fetchone()[0]
+        self.conn.execute(
+            f"UPDATE orders SET total = '{total}' WHERE id = '{order_id}'")
         self.conn.commit()
 
     # Read section
@@ -94,15 +96,23 @@ class Database:
             })
         return arr
 
-    #Update section
-    def update_done(self, order_id):
-        date = self.conn.execute(f"SELECT date FROM orders WHERE id = '{order_id}'").fetchone()[0]
+    def get_order_id(self, order_user_id, order_date):
+        return self.conn.execute("SELECT id FROM orders WHERE user_id = ? AND date = ?", (order_user_id, order_date)).fetchone()[0]
+
+    def get_total_price(self, order_id):
+        return self.conn.execute(f"SELECT total FROM orders WHERE id = '{order_id}'").fetchone()[0]
+
+    # Update section
+    def update_order(self, order_id):
+        date = self.conn.execute(
+            f"SELECT date FROM orders WHERE id = '{order_id}'").fetchone()[0]
         date = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S")
         now = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         delta = date - datetime.strptime(now, "%m/%d/%Y, %H:%M:%S")
         if (delta.seconds > 7200):
-            self.conn.execute(f"UPDATE orders SET done = 1 WHERE id = '{order_id}'")
-        
+            self.conn.execute(
+                f"UPDATE orders SET done = 1 WHERE id = '{order_id}'")
+
     def update_order(self):
         pass
 
@@ -126,7 +136,6 @@ if __name__ == '__main__':
     # Create Tables
     for query in create_table_queries:
         db.create_table(query)
-    
 
     db.insert_food({
         'name': 'Pizza',
@@ -158,11 +167,13 @@ if __name__ == '__main__':
         'description': 'This is Chicken',
         'image': 'img/5.jpg'
     })
+
     # Imagine we have only six tables
-    table_id = ['TABLE001', 'TABLE002', 'TABLE003', 'TABLE004', 'TABLE005', 'TABLE006']
+    table_id = ['TABLE001', 'TABLE002', 'TABLE003',
+                'TABLE004', 'TABLE005', 'TABLE006']
     for id in table_id:
         db.conn.execute(f"INSERT INTO users (id) VALUES ('{id}')")
-        
+
     # menu = db.get_menu()
 
     # with open('./string.txt', 'w') as file:

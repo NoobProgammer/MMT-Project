@@ -19,7 +19,7 @@ from struct import pack
 
 class Server:
     def __init__(self):
-        self.ip = '127.0.0.1'
+        self.ip = socket.gethostbyname(socket.gethostname()) or '127.0.0.1'
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,7 +38,7 @@ class Server:
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
     def handle_menu_request(self, conn, addr):
-        time.sleep(3)
+        time.sleep(1)
         #Get menu list from database then send to client
         menu = self.database.get_menu()
         conn.send(b'!MENU_LIST')
@@ -48,7 +48,7 @@ class Server:
         conn.send(b'!END_MENU_LIST')
         time.sleep(0.001)
 
-        # Iterate image and send to client
+        # Iterate image and send image to client
         for file in os.scandir(path='./img'):
             if file.is_file():
                 conn.send(b'!MENU_IMG')
@@ -67,22 +67,31 @@ class Server:
         time.sleep(0.01)
         conn.send(b'!DONE')
                 
-    def handle_order_request(self, request, addr):
-        print(f"[ORDER] {addr} made an order")
-        print(request)
-        print('----------------------------------------------------')
-        orderData = request['data']
-        print(orderData)
-        user_id = orderData['user_id']
-        date = orderData['date']
-        order = orderData['order']
-        self.database.insert_order(user_id, date, order)
-        total = self.database.conn.execute("SELECT total FROM orders WHERE user_id = ? AND date = ?", (user_id, date)).fetchone()[0]
+    def handle_order_request(self, conn, addr, request):
+        order_data = request['data']
+        print(f"[ORDER_DETAIL] {addr} ordered {order_data}")
+
+        # Get the neccesary order information and insert to database
+        order_user_id = order_data['user_id']
+        order_date = order_data['date']
+        order_detail = order_data['order']
+        self.database.insert_order(order_user_id, order_date, order_detail)
+
+        # Calculate total price
+        order_id = int(self.database.get_order_id(order_user_id, order_date))
+        print(f"[ORDER_ID] {order_id}")
+        print(type(order_id))
+        order_total_price = self.database.get_total_price(order_id)
+        print(f"[ORDER] total calculated: {order_total_price}")
+
         time.sleep(0.01)
-        
-        return total
-        
-       
+        self.send_total_price(conn, addr, order_total_price)
+
+    def send_total_price(self, conn, addr, total_price):
+        conn.send(b'!TOTAL_PRICE')
+        time.sleep(0.01)
+        conn.send(str(total_price).encode(FORMAT))
+
     # Handle connection with client
     # conn is the connection
     # addr is the address of the client
@@ -93,20 +102,19 @@ class Server:
         while connected:
             try:
                 msg = json.loads(conn.recv(1024).decode(FORMAT))
+
+                # Handle client request
                 if (msg["header"] == COMMAND_INFO):
                     print(f"[INFO] {addr} requested menu")
                     self.handle_menu_request(conn, addr)
-                    #self.handle_menu_img_request(conn, addr)
-                if (msg["header"] == COMMAND_ORDER):
-                    total_calculated = self.handle_order_request(msg, addr)
-                    conn.send(str(total_calculated).encode(FORMAT))
-                    print(f"[ORDER] total calculated: {total_calculated}")
-                    time.sleep(0.01)
-                    
 
-            # except socket.error:
-            #     print(f"[ERROR] {addr} disconnected")
-            #     connected = False
+                if (msg["header"] == COMMAND_ORDER):
+                    print(f"[ORDER] {addr} made an order")
+                    self.handle_order_request(conn, addr, msg)
+                    
+            except socket.error:
+                print(f"[ERROR] {addr} disconnected")
+                connected = False
             except json.JSONDecodeError:
                 print(f"[DISCONNECTED] {addr} disconnected")
                 connected = False
