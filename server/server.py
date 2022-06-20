@@ -19,7 +19,7 @@ from struct import pack
 
 class Server:
     def __init__(self):
-        self.ip = '127.0.0.1'
+        self.ip = '127.0.0.2'
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,7 +38,6 @@ class Server:
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
     def handle_menu_request(self, conn, addr):
-        time.sleep(3)
         #Get menu list from database then send to client
         menu = self.database.get_menu()
         conn.send(b'!MENU_LIST')

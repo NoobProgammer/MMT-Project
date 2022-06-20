@@ -52,13 +52,14 @@ class Client:
         self.client.send(request)
 
     def make_order(self, order):
-        orderData = {
-            "user_id": USER_ID,
-            "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
-            'order': order
-        }
-        request = self.encapsulate_request(COMMAND_ORDER, orderData)
-        self.client.send(request)
+        print(order)
+        # orderData = {
+        #     "user_id": USER_ID,
+        #     "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+        #     'order': order
+        # }
+        # request = self.encapsulate_request(COMMAND_ORDER, orderData)
+        # self.client.send(request)
         
             
 

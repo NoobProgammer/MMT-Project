@@ -29,6 +29,9 @@ def Pay(root):
             else:
                 mess_payment['method'] = check_value.get()
                 mess_payment['banking_number'] = input_Value.get()
+        else:
+            mess_payment['method'] = ''
+            mess_payment['banking_number'] = ''
         print(mess_payment) #call function send payload to server
 
     tk.Checkbutton(main_frame, text="cash on delivery", variable=check_value, onvalue='cash', offvalue='none', command=lambda: displayInput(input_bank, 0, 100, 500, 50)).place(x=0, y=0, width=500, height=50)
