@@ -3,7 +3,7 @@ import json
 import threading
 import time
 from struct import unpack
-import datetime
+from datetime import datetime
   
 
 # MESSAGE
@@ -54,7 +54,7 @@ class Client:
     def make_order(self, order):
         orderData = {
             "user_id": USER_ID,
-            "date": str(datetime.datetime.now()),
+            "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
             'order': order
         }
         request = self.encapsulate_request(COMMAND_ORDER, orderData)

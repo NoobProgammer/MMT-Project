@@ -1,5 +1,6 @@
 import sqlite3
 import base64
+from datetime import datetime
 
 # Comment out for later use
 # Will implement a database instead of json files
@@ -22,6 +23,7 @@ create_orders_table_sql = """ CREATE TABLE IF NOT EXISTS orders (
     [total] INTEGER NOT NULL,
     [date] TEXT NOT NULL,
     [done] BOOLEAN NOT NULL default 0,
+    [paid] BOOLEAN NOT NULL default 0,
     FOREIGN KEY (user_id) REFERENCES users(id)
 )"""
 
@@ -93,6 +95,14 @@ class Database:
         return arr
 
     #Update section
+    def update_done(self, order_id):
+        date = self.conn.execute(f"SELECT date FROM orders WHERE id = '{order_id}'").fetchone()[0]
+        date = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S")
+        now = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        delta = date - datetime.strptime(now, "%m/%d/%Y, %H:%M:%S")
+        if (delta.seconds > 7200):
+            self.conn.execute(f"UPDATE orders SET done = 1 WHERE id = '{order_id}'")
+        
     def update_order(self):
         pass
 
