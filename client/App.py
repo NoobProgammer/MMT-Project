@@ -86,17 +86,18 @@ if __name__ == "__main__":
             global order_frame
             dataMenu = client.on_receive_menu()
             data = getData.Data(dataMenu)
-            order_frame = Order.Order(root, data, client.make_order)
+            order_frame = Order.Order(root, data, client.make_order, client.on_receive_order)
             menu_frame = Menu.Menu(root, data)
+            show_menu_frame()
 
     Thread(target=receiveMenu).start()
 
     #pay frame
-    pay_frame = Pay.Pay(root)
+    pay_frame = Pay.Pay(root, client.make_payment, client.on_receive_payment_status)
     pay_frame.place(x=0, y=50, width=500, height=750)
 
     #order frame
-    order_frame = Order.Order(root, data, client.make_order)
+    order_frame = Order.Order(root, data, client.make_order, client.on_receive_order)
     order_frame.place(x=0, y=50, width=500, height=750)
 
     #menu frame:
@@ -104,3 +105,4 @@ if __name__ == "__main__":
     menu_frame.place(x=0, y=50, width=500, height=750)
     # window in mainloop:
     root.mainloop()
+    
