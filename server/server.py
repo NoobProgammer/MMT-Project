@@ -14,8 +14,16 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 # COMMAND
 COMMAND_INFO = "!INFO"
 COMMAND_ORDER = "!ORDER"
+<<<<<<< Updated upstream
 
 from struct import pack
+=======
+COMMAND_PAYMENT = "!PAYMENT"
+COMMAND_EXTEND = "!EXTEND"
+COMMAND_EXTRA = "!EXTRA"
+# # CARD REGEX
+# CARD_REGEX = "^\d{10}$"
+>>>>>>> Stashed changes
 
 class Server:
     def __init__(self):
@@ -79,10 +87,62 @@ class Server:
         self.database.insert_order(user_id, date, order)
         total = self.database.conn.execute("SELECT total FROM orders WHERE user_id = ? AND date = ?", (user_id, date)).fetchone()[0]
         time.sleep(0.01)
+<<<<<<< Updated upstream
         
         return total
         
        
+=======
+        conn.send(json.dumps(client_order).encode(FORMAT))
+
+    def handle_payment_request(self, conn, addr, request):
+        payment_option = request['data']["option"]
+        order_id = request['data']["order_id"]
+
+        if (payment_option == 'cash'):
+            print(f"[PAYMENT] {addr} paid by cash")
+            self.database.update_order_paid_status(order_id, True)
+    
+        elif (payment_option == 'card'):
+            card_details = str(request['data']["card_details"])
+            if (card_details.isnumeric() and len(card_details) == 10 and card_details[0] != '0'):
+                print(f"[PAYMENT] {addr} paid by card")
+                self.database.update_order_paid_status(order_id, True)
+            else:
+                conn.send(b'!PAYMENT_FAIL')
+
+    def handle_extend_request(self, conn, addr, request):
+        order_id = request['data']['order_id']
+        flag = self.database.check_done_status(order_id)
+        if (flag == 1):
+            conn.send(b'!EXTEND_TRUE')
+        elif(flag == 0):
+            conn.send(b'!EXTEND_FALSE')
+            
+    def handle_extra_request(self, conn, addr, request):
+        order_data = request['data']
+        print(f"[ORDER_DETAIL] {addr} ordered extra {order_data}")
+        
+        # Get the neccesary order information and insert to database
+        order_id = order_data['order_id']
+        order_detail = order_data['order']
+        self.database.insert_order(order_id, order_detail)
+        
+        # Calculate total price
+        order_total_price = self.database.get_total_price(order_id)
+        print(f"[ORDER_ID] {order_id}")
+        print(f"[ORDER] total calculated: {order_total_price}")
+        client_order = {
+            "id": order_id,
+            "total_price": order_total_price
+        }
+
+        conn.send(b'!ORDER_PRICE')
+        time.sleep(0.01)
+        conn.send(json.dumps(client_order).encode(FORMAT))
+            
+    
+>>>>>>> Stashed changes
     # Handle connection with client
     # conn is the connection
     # addr is the address of the client
@@ -91,6 +151,9 @@ class Server:
         print(f"[NEW CONNECTION] {addr} connected")
         connected = True
         while connected:
+            # Need to tweak this more before calling because newly created database doesnt have any rows which will cause bugs
+            # self.database.update_done_database()
+            # self.database.update_total_database()
             try:
                 msg = json.loads(conn.recv(1024).decode(FORMAT))
                 if (msg["header"] == COMMAND_INFO):
@@ -103,10 +166,24 @@ class Server:
                     print(f"[ORDER] total calculated: {total_calculated}")
                     time.sleep(0.01)
                     
+<<<<<<< Updated upstream
 
             # except socket.error:
             #     print(f"[ERROR] {addr} disconnected")
             #     connected = False
+=======
+                elif (msg["header"] == COMMAND_EXTEND):
+                    print(f'[EXTEND] {addr} wants to extend')
+                    self.handle_extend_request(conn, addr, msg)
+                    
+                elif (msg["header"] == COMMAND_EXTRA):
+                    print(f'[EXTRA] {addr} ordered extra')
+                    self.handle_extra_request(conn, addr, msg)
+                    
+            except socket.error:
+                print(f"[ERROR] {addr} disconnected")
+                connected = False
+>>>>>>> Stashed changes
             except json.JSONDecodeError:
                 print(f"[DISCONNECTED] {addr} disconnected")
                 connected = False
