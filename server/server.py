@@ -3,8 +3,6 @@ import threading
 import json
 import os
 import time
-import re
-from client.client import COMMAND_PAYMENT
 from db import Database
 from datetime import datetime
 
@@ -23,8 +21,8 @@ COMMAND_PAYMENT = "!PAYMENT"
 
 class Server:
     def __init__(self):
-
-        self.ip = socket.gethostbyname(socket.gethostname()) or '127.0.0.1'
+        #socket.gethostbyname(socket.gethostname()) or 
+        self.ip = '127.0.0.4'
 
         self.port = 12345
         self.addr = (self.ip, self.port)
@@ -43,20 +41,7 @@ class Server:
             thread.start()
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
-    def send_total_price(self, conn, addr, total_price):
-        conn.send(b'!TOTAL_PRICE')
-        time.sleep(0.01)
-        conn.send(str(total_price).encode(FORMAT))
-
-    def send_order_id(self, conn, addr, order_id):
-        conn.send(b'!ORDER_ID')
-        time.sleep(0.01)
-        conn.send(str(order_id).encode(FORMAT))
-
     def handle_menu_request(self, conn, addr):
-
-        time.sleep(1)
-
         #Get menu list from database then send to client
         menu = self.database.get_menu()
         conn.send(b'!MENU_LIST')
@@ -97,17 +82,17 @@ class Server:
 
         # Calculate total price
         order_id = int(self.database.get_order_id(order_user_id, order_date))
-        print(f"[ORDER_ID] {order_id}")
-        print(type(order_id))
         order_total_price = self.database.get_total_price(order_id)
+        print(f"[ORDER_ID] {order_id}")
         print(f"[ORDER] total calculated: {order_total_price}")
+        client_order = {
+            "id": order_id,
+            "total_price": order_total_price
+        }
 
+        conn.send(b'!ORDER_PRICE')
         time.sleep(0.01)
-        self.send_total_price(conn, addr, order_total_price)
-        time.sleep(0.01)
-        self.send_order_id(conn, addr, order_id)
-        time.sleep(0.01)
-        conn.send(b'!ORDER_DONE')
+        conn.send(json.dumps(client_order).encode(FORMAT))
 
     def handle_payment_request(self, conn, addr, request):
         payment_option = request['data']["option"]

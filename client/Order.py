@@ -11,7 +11,7 @@ from pip import main
 
 # cart:
 data_order = []
-
+order_id = None
 
 def scroll_frame(main_frame, width):
     my_canvas = tk.Canvas(main_frame)
@@ -91,35 +91,33 @@ def renderOrder(data):
     data_order.clear()
     root.mainloop()
 
-def handleMakeOrder(make_order, second_frame, data):
+def handleMakeOrder(make_order, second_frame, data, on_receive_order):
     def handleMoreOrder():
         tk.Frame(second_frame).place(x=0, y=0, width=500, height=700)
         renderListItem(second_frame, data)
+    global order_id
 
     if (len(data_order) == 0):
         showwarning(message='Let choose your dish!')
     else:
         make_order(data_order)
+        bill = on_receive_order()
+        order_id = bill['id']
         tk.Frame(second_frame).place(x=0, y=0, width=500, height=700)
-        btn = tk.Button(second_frame, text="More Order", command=handleMoreOrder).place(x=200, y=20, width=100, height=50)
+        tk.Label(second_frame, text="Total price: ", font=('Arial', 17), fg="#ba0c2f").place(x=50, y = 0, width=150, height=50)
+        tk.Label(second_frame, text=bill['total_price'], font=('Arial', 17), fg="#ba0c2f").place(x=200, y = 0, height=50)
+        tk.Button(second_frame, text="More Order", command=handleMoreOrder).place(x=200, y=50, width=100, height=50)
         renderOrder(data)
 
 # order frame:
-def Order(root, data, make_order):
+def Order(root, data, make_order, on_receive_order):
     # set scroll screen:
     main_frame = tk.Frame(root)
     main_frame.place(x=0, y=50, width=500, height=750)
 
     # click to order:
-    btn_order = tk.Button(main_frame, text="Order", command=lambda: handleMakeOrder(make_order, second_frame, data))
-    btn_order.place(x=0, y=0, width=100, height=50)
-
-    tk.Label(main_frame, text="Total price: ").place(x=120, y = 0, width=80, height=50)
-
-    #get total price from server:
-    total_price = 0 #call function getting total price from server
-    tk.Label(main_frame, text=total_price).place(x=195, y = 0, height=50)
-
+    btn_order = tk.Button(main_frame, text="Order", command=lambda: handleMakeOrder(make_order, second_frame, data, on_receive_order))
+    btn_order.place(x=200, y=0, width=100, height=50)
 
     wrap_list = tk.Frame(main_frame)
     wrap_list.place(x=0, y=50, width=500, height=700)
@@ -129,3 +127,7 @@ def Order(root, data, make_order):
     renderListItem(second_frame, data)
     # Return (Order frame, order_btn, order_data)
     return main_frame
+
+
+def OrderId():
+    return order_id

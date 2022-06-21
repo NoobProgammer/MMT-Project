@@ -83,16 +83,17 @@ class Client:
 
     def on_receive_order(self):
         print('[WAITING] Waiting for order response')
+        total_price = None
+        order_id = None
         while True:
             msg = self.client.recv(1024)
-            if (msg == b'!TOTAL_PRICE'):
+            if (msg == b'!ORDER_PRICE'):
                 msg = self.client.recv(1024)
-                total_price = json.loads(msg.decode())
-            elif (msg == b'!ORDER_ID'):
-                msg = self.client.recv(1024)
-                order_id = json.loads(msg.decode())
-            elif (msg == b'!ORDER_DONE'):
-                return (total_price, order_id)
+                order = json.loads(msg.decode(FORMAT))
+                print(order)
+                return order
+                
+
         
     def on_receive_menu(self):
         file_index = 1
