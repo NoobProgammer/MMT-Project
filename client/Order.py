@@ -101,6 +101,10 @@ def handleMakeOrder(make_order, second_frame, data, on_receive_order, check_expi
 
     global order_id
     bill = None
+
+    def receive_bill(bill, on_receive_order):
+        bill = on_receive_order()
+
     if (len(data_order) == 0):
         showwarning(message='Let choose your dish!')
     else:
