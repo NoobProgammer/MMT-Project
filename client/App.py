@@ -1,4 +1,4 @@
-from pickle import NONE
+
 import tkinter as tk
 from threading import Thread
 import customtkinter as ctk
@@ -86,7 +86,7 @@ if __name__ == "__main__":
             global order_frame
             dataMenu = client.on_receive_menu()
             data = getData.Data(dataMenu)
-            order_frame = Order.Order(root, data, client.make_order, client.on_receive_order)
+            order_frame = Order.Order(root, data, client.make_order, client.on_receive_order, client.check_expiration, client.extend_order)
             menu_frame = Menu.Menu(root, data)
             show_menu_frame()
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     pay_frame.place(x=0, y=50, width=500, height=750)
 
     #order frame
-    order_frame = Order.Order(root, data, client.make_order, client.on_receive_order)
+    order_frame = Order.Order(root, data, client.make_order, client.on_receive_order, client.check_expiration, client.extend_order)
     order_frame.place(x=0, y=50, width=500, height=750)
 
     #menu frame:

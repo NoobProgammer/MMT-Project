@@ -23,7 +23,7 @@ COMMAND_EXTRA = "!EXTRA"
 class Server:
     def __init__(self):
         #socket.gethostbyname(socket.gethostname()) or 
-        self.ip = '127.0.0.4'
+        self.ip = '127.0.0.2'
 
         self.port = 12345
         self.addr = (self.ip, self.port)
@@ -72,6 +72,7 @@ class Server:
         conn.send(b'!MENU_DONE')
                 
     def handle_order_request(self, conn, addr, request):
+        print(request)
         order_data = request['data']
         print(f"[ORDER_DETAIL] {addr} ordered {order_data}")
 
@@ -91,8 +92,10 @@ class Server:
             "total_price": order_total_price
         }
 
+        print("send header")
         conn.send(b'!ORDER_PRICE')
-        time.sleep(0.01)
+        time.sleep(0.05)
+        print("send data")
         conn.send(json.dumps(client_order).encode(FORMAT))
 
     def handle_payment_request(self, conn, addr, request):
@@ -112,19 +115,21 @@ class Server:
                 conn.send(b'!PAYMENT_FAIL')
 
     def handle_extend_request(self, conn, addr, request):
-        order_id = request['data']['order_id']
+        order_id = request['data']
+        print(order_id)
         flag = self.database.check_done_status(order_id)
-        if (flag == 1):
+        if (flag == 0):
             conn.send(b'!EXTEND_TRUE')
-        elif(flag == 0):
+        elif(flag == 1):
             conn.send(b'!EXTEND_FALSE')
             
     def handle_extra_request(self, conn, addr, request):
+        
         order_data = request['data']
         print(f"[ORDER_DETAIL] {addr} ordered extra {order_data}")
         
         # Get the neccesary order information and insert to database
-        order_id = order_data['order_id']
+        order_id = order_data['id']
         order_detail = order_data['order']
         self.database.insert_order(order_id, order_detail)
         
@@ -138,7 +143,7 @@ class Server:
         }
 
         conn.send(b'!ORDER_PRICE')
-        time.sleep(0.01)
+        time.sleep(0.05)
         conn.send(json.dumps(client_order).encode(FORMAT))
             
     
@@ -171,6 +176,7 @@ class Server:
                     
                 elif (msg["header"] == COMMAND_EXTEND):
                     print(f'[EXTEND] {addr} wants to extend')
+                    print(msg)
                     self.handle_extend_request(conn, addr, msg)
                     
                 elif (msg["header"] == COMMAND_EXTRA):

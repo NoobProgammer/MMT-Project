@@ -4,7 +4,6 @@ import threading
 import time
 from struct import unpack
 from datetime import datetime
-from tkinter.messagebox import NO
 
 from requests import request
   
@@ -72,21 +71,26 @@ class Client:
 
           
     def check_expiration(self, order_id):
+        print(order_id)
         request = self.encapsulate_request(COMMAND_EXTEND, order_id)
         self.client.send(request)
         print('[WAITING] Waiting for extend response')
         while True:
             msg = self.client.recv(1024)
             if (msg == b'!EXTEND_TRUE'):
+                print(1)
                 return 1
             elif (msg == b'!EXTEND_FALSE'):
+                print(0)
                 return 0
             
     def extend_order(self, order_id, order):
+        
         order_data = {
-            'order_id': order_id,
+            'id': order_id,
             'order' : order
         }
+        print(order_data)
         request = self.encapsulate_request(COMMAND_EXTRA, order_data)
         self.client.send(request)
 
@@ -104,14 +108,13 @@ class Client:
 
     def on_receive_order(self):
         print('[WAITING] Waiting for order response')
-        total_price = None
-        order_id = None
         while True:
             msg = self.client.recv(1024)
+            print("received header")
             if (msg == b'!ORDER_PRICE'):
                 msg = self.client.recv(1024)
+                print("received data")
                 order = json.loads(msg.decode(FORMAT))
-                print(order)
                 return order
                 
 
