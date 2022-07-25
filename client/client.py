@@ -4,8 +4,8 @@ import threading
 import time
 from struct import unpack
 from datetime import datetime
-
 from requests import request
+
   
 
 # MESSAGE
@@ -19,6 +19,7 @@ COMMAND_ORDER = "!ORDER"
 COMMAND_PAYMENT = "!PAYMENT"
 COMMAND_EXTEND = "!EXTEND"
 COMMAND_EXTRA = "!EXTRA"
+
 
 class Client:
     def __init__(self):
@@ -66,7 +67,32 @@ class Client:
             "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
             'order': order
         }
+
         request = self.encapsulate_request(COMMAND_ORDER, order_data)
+        self.client.send(request)
+
+    
+    def check_expiration(self, order_id):
+        request = self.encapsulate_request(COMMAND_EXTEND, order_id)
+        self.client.send(request)
+        print('[WAITING] Waiting for extend response')
+        while True:
+            msg = self.client.recv(1024)
+            if (msg == b'!EXTEND_TRUE'):
+                return 1
+            elif (msg == b'!EXTEND_FALSE'):
+                return 0
+            
+    def extend_order(self, order_id, order):
+        order_data = {
+            'order_id': order_id,
+            'order' : order
+        }
+        request = self.encapsulate_request(COMMAND_EXTRA, order_data)
+        self.client.send(request)
+
+    def make_payment(self, order_id, option, card_details = None):
+        request = self.encapsulate_request(COMMAND_PAYMENT, {"order_id": order_id, "option": option, "card_details": card_details})
         self.client.send(request)
 
           
