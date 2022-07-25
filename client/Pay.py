@@ -8,7 +8,7 @@ mess_payment = {
     'banking_number': ''
 }
 
-def receiveErrorMess(on_receive_payment_status):
+def receive_error_msg(on_receive_payment_status):
     error_mess = on_receive_payment_status()
     showwarning(title='Warning', message=error_mess)
 
@@ -48,7 +48,7 @@ def Pay(root, make_payment, on_receive_payment_status):
             make_payment(order_id, mess_payment['method'])
         elif (mess_payment['method'] == 'card'):
             make_payment(order_id, mess_payment['method'], mess_payment['banking_number'])
-            Thread(target=lambda: receiveErrorMess(on_receive_payment_status)).start()
+            Thread(target=receive_error_msg(on_receive_payment_status)).start()
         #print(mess_payment) #call function send payload to server
 
     tk.Checkbutton(main_frame, text="cash on delivery", variable=check_value, onvalue='cash', offvalue='none', command=lambda: displayInput(input_bank, 0, 100, 500, 50)).place(x=0, y=0, width=500, height=50)

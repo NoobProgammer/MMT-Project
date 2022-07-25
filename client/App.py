@@ -39,11 +39,20 @@ def show_pay_frame():
     order_btn.config(hover_color=Color.color["main_color_disabled"])
 
 
-if __name__ == "__main__":
-    # app = App()
-    # app.run()
+def receive_menu():
+    while True:
+        global data
+        global menu_frame
+        global order_frame
+        dataMenu = client.on_receive_menu()
+        data = getData.Data(dataMenu)
+        order_frame = Order.Order(root, data, client.make_order, client.on_receive_order)
+        menu_frame = Menu.Menu(root, data)
+        show_menu_frame()
 
-    #create client
+
+if __name__ == "__main__":
+    # Create client
     client = Client()
     client.connect()
 
@@ -75,34 +84,24 @@ if __name__ == "__main__":
                             corner_radius=0, command=show_pay_frame)
     pay_btn.place(x=332, y=0, width=166, height=50)
 
-    #get data from server:
     data = None
+    # Send a menu request
     client.request_menu()
+    # Receive menu from server
+    Thread(target=receive_menu).start()
 
-    def receiveMenu():
-        while True:
-            global data
-            global menu_frame
-            global order_frame
-            dataMenu = client.on_receive_menu()
-            data = getData.Data(dataMenu)
-            order_frame = Order.Order(root, data, client.make_order, client.on_receive_order)
-            menu_frame = Menu.Menu(root, data)
-            show_menu_frame()
-
-    Thread(target=receiveMenu).start()
-
-    #pay frame
+    # Pay frame
     pay_frame = Pay.Pay(root, client.make_payment, client.on_receive_payment_status)
     pay_frame.place(x=0, y=50, width=500, height=750)
 
-    #order frame
+    # Order frame
     order_frame = Order.Order(root, data, client.make_order, client.on_receive_order)
     order_frame.place(x=0, y=50, width=500, height=750)
 
-    #menu frame:
+    # Menu frame:
     menu_frame = Menu.Menu(root, data)
     menu_frame.place(x=0, y=50, width=500, height=750)
-    # window in mainloop:
+
+    # Window in mainloop:
     root.mainloop()
     

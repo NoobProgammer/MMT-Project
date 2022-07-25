@@ -1,13 +1,6 @@
 import socket
 import json
-import threading
-import time
-from struct import unpack
 from datetime import datetime
-from tkinter.messagebox import NO
-
-from requests import request
-  
 
 # MESSAGE
 HEADER = 64
@@ -61,7 +54,6 @@ class Client:
         self.client.send(request)
 
     def make_order(self, order):
-
         order_data = {
             "user_id": USER_ID,
             "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
@@ -70,7 +62,6 @@ class Client:
         request = self.encapsulate_request(COMMAND_ORDER, order_data)
         self.client.send(request)
 
-          
     def check_expiration(self, order_id):
         request = self.encapsulate_request(COMMAND_EXTEND, order_id)
         self.client.send(request)
@@ -114,8 +105,6 @@ class Client:
                 print(order)
                 return order
                 
-
-        
     def on_receive_menu(self):
         file_index = 1
         print('[WAITING] Waiting for menu response')
