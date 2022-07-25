@@ -78,19 +78,8 @@ if __name__ == "__main__":
     #get data from server:
     data = None
     client.request_menu()
-
-    def receiveMenu():
-        while True:
-            global data
-            global menu_frame
-            global order_frame
-            dataMenu = client.on_receive_menu()
-            data = getData.Data(dataMenu)
-            order_frame = Order.Order(root, data, client.make_order, client.on_receive_order, client.check_expiration, client.extend_order)
-            menu_frame = Menu.Menu(root, data)
-            show_menu_frame()
-
-    Thread(target=receiveMenu).start()
+    dataMenu = client.on_receive_menu()
+    data = getData.Data(dataMenu)
 
     #pay frame
     pay_frame = Pay.Pay(root, client.make_payment, client.on_receive_payment_status)

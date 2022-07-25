@@ -109,6 +109,9 @@ class Database:
     
     def check_done_status(self, order_id):
         return self.conn.execute(f"SELECT done FROM orders WHERE id = '{order_id}'").fetchone()[0]
+    
+    def check_paid_status(self, order_id):
+        return self.conn.execute(f"SELECT paid FROM orders WHERE id = '{order_id}'").fetchone()[0]
         
 
     # Update section
@@ -122,27 +125,34 @@ class Database:
             f"UPDATE orders SET total = '{total}' WHERE id = '{order_id}'")
         self.conn.commit()
     def update_total_database(self):
+        print('UPDATING TOTAL DB')
         order_id_array = self.conn.execute('SELECT id FROM orders').fetchall()
         for order_id in order_id_array:
-            self.update_total(order_id)
+            self.update_total(order_id[0])
         self.conn.commit()
     
     # Update done in database
     def update_done(self, order_id):
         date = self.conn.execute(
             f"SELECT date FROM orders WHERE id = '{order_id}'").fetchone()[0]
+        date = str(date)
         date = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S")
-        now = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-        delta = date - datetime.strptime(now, "%m/%d/%Y, %H:%M:%S")
+        now = datetime.now()
+        delta = now - date
         if (delta.seconds > 7200):
             self.conn.execute(
                 f"UPDATE orders SET done = 1 WHERE id = '{order_id}'")
             self.conn.commit()
+        elif (delta.seconds <= 7200):
+            self.conn.execute(
+                f"UPDATE orders SET done = 0 WHERE id = '{order_id}'")
+            self.conn.commit()
         
     def update_done_database(self):
+        print('UPDATING DONE DB')
         order_id_array = self.conn.execute('SELECT id FROM orders').fetchall()
         for order_id in order_id_array:
-            self.update_done(order_id)
+            self.update_done(order_id[0])
         self.conn.commit()
         
         

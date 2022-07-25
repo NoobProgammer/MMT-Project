@@ -1,7 +1,6 @@
 from tkinter import ttk
 import tkinter as tk
 import Color
-import base64
 
 def scrollFrame(main_frame, width):
     my_canvas = tk.Canvas(main_frame)
