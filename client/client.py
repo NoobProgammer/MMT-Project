@@ -24,6 +24,7 @@ class Client:
     def __init__(self):
         # Connection info
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.settimeout(5)
         self.target_server_ip = ''
         self.port = 0
         self.addr = ()
