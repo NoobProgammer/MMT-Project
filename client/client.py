@@ -72,7 +72,6 @@ class Client:
 
           
     def check_expiration(self, order_id):
-        print(order_id)
         request = self.encapsulate_request(COMMAND_EXTEND, order_id)
         self.client.send(request)
         print('[WAITING] Waiting for extend response')
@@ -101,22 +100,26 @@ class Client:
 
     def on_receive_payment_status(self):
         print('[WAITING] Waiting for payment status response')
-        while True:
-            msg = self.client.recv(1024)
-            if (msg == b'!PAYMENT_FAIL'):
-                failed_msg = "YOUR CARD IS NOT LEGIT, PLEASE REENTER"
-                return failed_msg
+        msg = self.client.recv(1024)
+        if (msg == b'!PAYMENT_SUCCESS'):
+            success_msg = "PAYMENT SUCCESSFUL"
+            return success_msg
+        elif (msg == b'!PAYMENT_FAIL'):
+            failed_msg = "YOUR CARD IS NOT LEGIT, PLEASE REENTER"
+            return failed_msg
+        elif (msg == b'!PAYMENT_DONE'):
+            done_msg = "ALREADY PAID"
+            return done_msg
 
     def on_receive_order(self):
         print('[WAITING] Waiting for order response')
-        while True:
+        msg = self.client.recv(1024)
+        print("received header")
+        if (msg == b'!ORDER_PRICE'):
             msg = self.client.recv(1024)
-            print("received header")
-            if (msg == b'!ORDER_PRICE'):
-                msg = self.client.recv(1024)
-                print("received data")
-                order = json.loads(msg.decode(FORMAT))
-                return order
+            print("received data")
+            order = json.loads(msg.decode(FORMAT))
+            return order
                 
 
         

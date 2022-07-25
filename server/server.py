@@ -1,3 +1,4 @@
+from multiprocessing.connection import Client
 import socket
 import threading
 import json
@@ -23,7 +24,7 @@ COMMAND_EXTRA = "!EXTRA"
 class Server:
     def __init__(self):
         #socket.gethostbyname(socket.gethostname()) or 
-        self.ip = '127.0.0.2'
+        self.ip = '127.0.0.3'
 
         self.port = 12345
         self.addr = (self.ip, self.port)
@@ -102,18 +103,22 @@ class Server:
     def handle_payment_request(self, conn, addr, request):
         payment_option = request['data']["option"]
         order_id = request['data']["order_id"]
-
-        if (payment_option == 'cash'):
-            print(f"[PAYMENT] {addr} paid by cash")
-            self.database.update_order_paid_status(order_id, True)
-    
-        elif (payment_option == 'card'):
-            card_details = str(request['data']["card_details"])
-            if (card_details.isnumeric() and len(card_details) == 10 and card_details[0] != '0'):
-                print(f"[PAYMENT] {addr} paid by card")
+        if (self.database.check_paid_status(order_id) == 0):
+            if (payment_option == 'cash'):
+                print(f"[PAYMENT] {addr} paid by cash")
                 self.database.update_order_paid_status(order_id, True)
-            else:
-                conn.send(b'!PAYMENT_FAIL')
+                conn.send(b'!PAYMENT_SUCCESS')
+        
+            elif (payment_option == 'card'):
+                card_details = str(request['data']["card_details"])
+                if (card_details.isnumeric() and len(card_details) == 10 and card_details[0] != '0'):
+                    print(f"[PAYMENT] {addr} paid by card")
+                    self.database.update_order_paid_status(order_id, True)
+                    conn.send(b'!PAYMENT_SUCCESS')
+                else:
+                    conn.send(b'!PAYMENT_FAIL')
+        elif (self.database.check_paid_status(order_id) == 1):
+            conn.send(b'!PAYMENT_DONE')
 
     def handle_extend_request(self, conn, addr, request):
         order_id = request['data']
@@ -135,7 +140,7 @@ class Server:
         order_id = order_data['id']
         order_detail = order_data['order']
         self.database.insert_extra_order(order_id, order_detail)
-        
+        self.database.update_total(order_id)
         # Calculate total price
         order_total_price = self.database.get_total_price(order_id)
         print(f"[ORDER_ID] {order_id}")
@@ -144,7 +149,7 @@ class Server:
             "id": order_id,
             "total_price": order_total_price
         }
-
+        print(client_order)
         conn.send(b'!ORDER_PRICE')
         time.sleep(0.05)
         conn.send(json.dumps(client_order).encode(FORMAT))
@@ -159,8 +164,8 @@ class Server:
         connected = True
         while connected:
             # Need to tweak this more before calling because newly created database doesnt have any rows
-            # self.database.update_done_database()
-            # self.database.update_total_database()
+            self.database.update_done_database()
+            self.database.update_total_database()
             try:
                 msg = json.loads(conn.recv(1024).decode(FORMAT))
 
