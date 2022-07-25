@@ -101,6 +101,7 @@ class Database:
             })
         return arr
 
+    #Update section
     def get_order_id(self, order_user_id, order_date):
         return self.conn.execute("SELECT id FROM orders WHERE user_id = ? AND date = ?", (order_user_id, order_date)).fetchone()[0]
 
@@ -138,7 +139,7 @@ class Database:
             self.conn.execute(
                 f"UPDATE orders SET done = 1 WHERE id = '{order_id}'")
             self.conn.commit()
-        
+
     def update_done_database(self):
         order_id_array = self.conn.execute('SELECT id FROM orders').fetchall()
         for order_id in order_id_array:
