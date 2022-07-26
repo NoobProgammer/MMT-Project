@@ -1,7 +1,6 @@
 from PIL import Image, ImageTk
 
 def Data(dataMenu):
-    print(dataMenu)
     if (dataMenu == None):
         return None
     for item in dataMenu:

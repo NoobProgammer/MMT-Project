@@ -1,8 +1,6 @@
 
 import tkinter as tk
-from threading import Thread
 import customtkinter as ctk
-
 import Menu
 import Order
 import Pay

@@ -7,19 +7,17 @@ A basic networking course Python project to demonstrate the use of sockets and t
 ## Overview
 
 A simple booking application that allows users to book a table for a restaurant. The application has the following features:
-- The server can accept multiple connections
-- Implements a database to store the menu and the bookings
-- Users can view the menu (with images) and make bookings
-- Implements a payment system to allow users to pay for their bookings
 
-*LATER: Add screenshots of the application*
+-   The server can accept multiple connections
+-   Implements a database to store the menu and the bookings
+-   Users can view the menu (with images) and make bookings
+-   Implements a payment system to allow users to pay for their bookings
 
 ## How to run the application?
 1. Locate to server folder and run the db.py to populate the database:
     ```
     python3 db.py
     ```
-
 2. Run the server:
 
     ```
@@ -41,6 +39,6 @@ A simple booking application that allows users to book a table for a restaurant.
 
 Many thanks to the following people for their contributions:
 
-- **Nguyen Ho Trung Hieu** - 20126038
-- **Vu Hoai Nam** - 20126045
-- **Truong Do Truong Thinh** - 20126056
+-   **Nguyen Ho Trung Hieu** - 20126038
+-   **Vu Hoai Nam** - 20126045
+-   **Truong Do Truong Thinh** - 20126056

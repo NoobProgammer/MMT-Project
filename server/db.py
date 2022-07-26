@@ -1,5 +1,4 @@
 import sqlite3
-import base64
 from datetime import datetime
 
 # Comment out for later use

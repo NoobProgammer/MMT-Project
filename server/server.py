@@ -72,7 +72,6 @@ class Server:
         conn.send(b'!MENU_DONE')
                 
     def handle_order_request(self, conn, addr, request):
-        print(request)
         order_data = request['data']
         print(f"[ORDER_DETAIL] {addr} ordered {order_data}")
 
@@ -93,10 +92,8 @@ class Server:
         }
 
         time.sleep(0.001)
-        print("send header")
         conn.send(b'!ORDER_PRICE')
         time.sleep(0.001)
-        print("send data")
         conn.send(json.dumps(client_order).encode(FORMAT))
 
     def handle_payment_request(self, conn, addr, request):
@@ -121,7 +118,6 @@ class Server:
 
     def handle_extend_request(self, conn, addr, request):
         order_id = request['data']
-        print(order_id)
         flag = self.database.check_done_status(order_id)
         if (flag == 0):
             time.sleep(0.01)
@@ -148,7 +144,6 @@ class Server:
             "id": order_id,
             "total_price": order_total_price
         }
-        print(client_order)
         conn.send(b'!ORDER_PRICE')
         time.sleep(0.05)
         conn.send(json.dumps(client_order).encode(FORMAT))
@@ -183,7 +178,6 @@ class Server:
                     
                 elif (msg["header"] == COMMAND_EXTEND):
                     print(f'[EXTEND] {addr} wants to extend')
-                    print(msg)
                     self.handle_extend_request(conn, addr, msg)
                     
                 elif (msg["header"] == COMMAND_EXTRA):
