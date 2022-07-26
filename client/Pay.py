@@ -31,24 +31,29 @@ def Pay(root, make_payment, on_receive_payment_status):
 
     def send_mess_payment():
         # validate
+        isChecked = False
         if (check_value.get() == 'cash'):
             mess_payment['method'] = check_value.get()
             mess_payment['banking_number'] = ''
+            isChecked = True
         elif (check_value.get() == 'card'):
             if (input_Value.get() == ''):
                 showwarning(title='Warning',message='Please, input banking number!')
+                isChecked = False
             else:
                 mess_payment['method'] = check_value.get()
                 mess_payment['banking_number'] = input_Value.get()
+                isChecked = True
         else:
             mess_payment['method'] = ''
             mess_payment['banking_number'] = ''
+            isChecked = False
 
         # send payment method:
         order_id = OrderId()
         if (order_id == None):
             showwarning(title='Warning', message='Let make your order!')
-        else:
+        elif (isChecked):
             if (mess_payment['method'] == ''):
                 showwarning(title='Warning', message='Please, choose your payment method!')
             elif (mess_payment['method'] == 'cash'):
