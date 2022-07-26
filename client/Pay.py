@@ -9,7 +9,7 @@ mess_payment = {
 }
 
 
-def receive_error_msg(on_receive_payment_status):
+def receiveErrorMess(on_receive_payment_status):
     error_mess = on_receive_payment_status()
     if(error_mess == "PAYMENT SUCCESSFUL"):
         setOrderId(None)
@@ -36,8 +36,7 @@ def Pay(root, make_payment, on_receive_payment_status):
             mess_payment['banking_number'] = ''
         elif (check_value.get() == 'card'):
             if (input_Value.get() == ''):
-                showwarning(title='Warning',
-                            message='Please, input banking number!')
+                showwarning(title='Warning',message='Please, input banking number!')
             else:
                 mess_payment['method'] = check_value.get()
                 mess_payment['banking_number'] = input_Value.get()
@@ -47,10 +46,17 @@ def Pay(root, make_payment, on_receive_payment_status):
 
         # send payment method:
         order_id = OrderId()
-        make_payment(
-            order_id, mess_payment['method'], mess_payment['banking_number'])
-        Thread(target=lambda: receiveErrorMess(
-            on_receive_payment_status)).start()
+        if (order_id == None):
+            showwarning(title='Warning', message='Let make your order!')
+        else:
+            if (mess_payment['method'] == ''):
+                showwarning(title='Warning', message='Please, choose your payment method!')
+            elif (mess_payment['method'] == 'cash'):
+                make_payment(order_id, mess_payment['method'])
+                Thread(target=lambda: receiveErrorMess(on_receive_payment_status)).start()
+            elif (mess_payment['method'] == 'card'):
+                make_payment(order_id, mess_payment['method'], mess_payment['banking_number'])
+                Thread(target=lambda: receiveErrorMess(on_receive_payment_status)).start()
         # print(mess_payment) #call function send payload to server
 
     tk.Checkbutton(main_frame, text="cash on delivery", variable=check_value, onvalue='cash', offvalue='none',
