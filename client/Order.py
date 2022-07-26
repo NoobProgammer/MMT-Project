@@ -1,16 +1,14 @@
-from cgitb import text
-from email.base64mime import header_length
+from time import sleep
 from tkinter import ttk
 from tkinter import PhotoImage
 from tkinter.messagebox import showwarning
 import tkinter as tk
-from turtle import heading, width
-from unicodedata import name
 
 from pip import main
 
 # cart:
 data_order = []
+data_ordered = []
 order_id = None
 
 def scroll_frame(main_frame, width):
@@ -88,37 +86,74 @@ def renderOrder(data):
     data_order.clear()
     root.mainloop()
 
-def handleMakeOrder(make_order, second_frame, data, on_receive_order):
-    def handleMoreOrder():
-        tk.Frame(second_frame).place(x=0, y=0, width=500, height=700)
-        renderListItem(second_frame, data)
-    global order_id
+def MoreOrderFrame(bill, data):
+    global data_ordered
+    root = tk.Tk()
+    root.title("Bill price")
+    root.geometry("300x500")
+
+    main_frame = scroll_frame(root, 300)
+    
+    i = 0
+    for order in data_ordered:
+        for item in data:
+            if (order["id"] == item["id"]):
+                tk.Label(main_frame, text=f'{item["name"]} x {order["quantity"]}').grid(row=i, column=0, pady=10, ipadx=5)
+                i += 1
+
+    tk.Label(main_frame, text="Total price: ", font=('Arial', 17), fg="#ba0c2f").grid(row=i+1, column=0, pady=10, ipadx=5)
+    tk.Label(main_frame, text=bill['total_price'], font=('Arial', 17), fg="#ba0c2f").grid(row=i+1, column=1, pady=10, ipadx=5)
+    tk.Button(main_frame, text="More order", command=root.destroy).grid(row=i+2, column=0, pady=10, ipadx=5)
+
+    
+
+def handleMakeOrder(make_order, second_frame, data, on_receive_order, check_expiration, extend_order):
+    global order_id, data_order, data_ordered
+    bill = None
+    print('[Order ID:' + str(order_id))
+    #check new order or old order
+    # if (order_id == None):
+    #     check = 1
+    # else: 
 
     if (len(data_order) == 0):
         showwarning(message='Let choose your dish!')
     else:
-        make_order(data_order)
-        bill = on_receive_order()
+        if (order_id == None):
+            make_order(data_order)
+            bill = on_receive_order()
+            for item in data_order:
+                data_ordered.append(item)
+            data_order.clear()
+        else:
+            check = check_expiration(order_id)
+            if (check == 1):
+                extend_order(order_id, data_order)
+                while bill == None:
+                    bill = on_receive_order()
+                for item in data_order:
+                    data_ordered.append(item)
+                data_order.clear()
+            elif (check == 0):
+                showwarning("Warning", "Your order is expired")
+
         order_id = bill['id']
-        tk.Frame(second_frame).place(x=0, y=0, width=500, height=700)
-        tk.Label(second_frame, text="Total price: ", font=('Arial', 17), fg="#ba0c2f").place(x=50, y = 0, width=150, height=50)
-        tk.Label(second_frame, text=bill['total_price'], font=('Arial', 17), fg="#ba0c2f").place(x=200, y = 0, height=50)
-        tk.Button(second_frame, text="More Order", command=handleMoreOrder).place(x=200, y=50, width=100, height=50)
-        renderOrder(data)
+        MoreOrderFrame(bill, data)
+        renderListItem(second_frame, data)
+        print(data_ordered)
 
 # order frame:
-def Order(root, data, make_order, on_receive_order):
+def Order(root, data, make_order, on_receive_order, check_expiration, extend_order):
     # set scroll screen:
     main_frame = tk.Frame(root)
     main_frame.place(x=0, y=50, width=500, height=750)
-
-    # click to order:
-    btn_order = tk.Button(main_frame, text="Order", command=lambda: handleMakeOrder(make_order, second_frame, data, on_receive_order))
-    btn_order.place(x=200, y=0, width=100, height=50)
-
     wrap_list = tk.Frame(main_frame)
     wrap_list.place(x=0, y=50, width=500, height=700)
     second_frame = scroll_frame(wrap_list, 500)
+
+    # click to order:
+    btn_order = tk.Button(main_frame, text="Order", command=lambda: handleMakeOrder(make_order, second_frame, data, on_receive_order, check_expiration, extend_order))
+    btn_order.place(x=200, y=0, width=100, height=50)
 
     # render list:
     renderListItem(second_frame, data)
@@ -128,3 +163,8 @@ def Order(root, data, make_order, on_receive_order):
 
 def OrderId():
     return order_id
+
+def setOrderId(id):
+    global order_id, data_ordered
+    order_id = id
+    data_ordered.clear()

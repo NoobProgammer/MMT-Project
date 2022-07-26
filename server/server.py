@@ -1,3 +1,4 @@
+from multiprocessing.connection import Client
 import socket
 import threading
 import json
@@ -21,10 +22,13 @@ COMMAND_EXTRA = "!EXTRA"
 # BUFFER SIZE
 BUFFER_SIZE = 1024
 
+
 class Server:
     def __init__(self):
-        #socket.gethostbyname(socket.gethostname()) or 
-        self.ip = '127.0.0.1'
+        # socket.gethostbyname(socket.gethostname()) or
+
+        self.ip = '127.0.0.3'
+
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,12 +42,13 @@ class Server:
         while True:
             conn, addr = self.server.accept()
             # Create a new thread for each connection to handle the client
-            thread = threading.Thread(target=self.handle_client_requests, args=(conn, addr))
+            thread = threading.Thread(
+                target=self.handle_client_requests, args=(conn, addr))
             thread.start()
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
     def handle_menu_request(self, conn, addr):
-        #Get menu list from database then send to client
+        # Get menu list from database then send to client
         menu = self.database.get_menu()
         conn.send(b'!MENU_LIST')
         time.sleep(0.001)
@@ -53,7 +58,7 @@ class Server:
         time.sleep(0.001)
 
         # Iterate ordered image list and send image to client
-        img_files = sorted( filter(os.path.isfile, glob.glob("./img/" + '*')))
+        img_files = sorted(filter(os.path.isfile, glob.glob("./img/" + '*')))
         for file in img_files:
             conn.send(b'!MENU_IMG')
             time.sleep(0.01)
@@ -63,7 +68,7 @@ class Server:
             while bytes:
                 conn.send(bytes)
                 bytes = f.read(BUFFER_SIZE)
-            
+
             f.close()
             time.sleep(0.05)
             conn.send(b'!END_IMG')
@@ -71,8 +76,9 @@ class Server:
         # Done everything, send end message
         time.sleep(0.01)
         conn.send(b'!MENU_DONE')
-                
+
     def handle_order_request(self, conn, addr, request):
+        print(request)
         order_data = request['data']
         print(f"[ORDER_DETAIL] {addr} ordered {order_data}")
 
@@ -92,43 +98,56 @@ class Server:
             "id": order_id,
             "total_price": order_total_price
         }
+
+        time.sleep(0.001)
+        print("send header")
+
         conn.send(b'!ORDER_PRICE')
-        time.sleep(0.01)
+        time.sleep(0.001)
+        print("send data")
         conn.send(json.dumps(client_order).encode(FORMAT))
 
     def handle_payment_request(self, conn, addr, request):
         payment_option = request['data']["option"]
         order_id = request['data']["order_id"]
-
-        if (payment_option == 'cash'):
-            print(f"[PAYMENT] {addr} paid by cash")
-            self.database.update_order_paid_status(order_id, True)
-    
-        elif (payment_option == 'card'):
-            card_details = str(request['data']["card_details"])
-            if (card_details.isnumeric() and len(card_details) == 10 and card_details[0] != '0'):
-                print(f"[PAYMENT] {addr} paid by card")
+        if (self.database.check_paid_status(order_id) == 0):
+            if (payment_option == 'cash'):
+                print(f"[PAYMENT] {addr} paid by cash")
                 self.database.update_order_paid_status(order_id, True)
-            else:
-                conn.send(b'!PAYMENT_FAIL')
+                conn.send(b'!PAYMENT_SUCCESS')
+
+            elif (payment_option == 'card'):
+                card_details = str(request['data']["card_details"])
+                if (card_details.isnumeric() and len(card_details) == 10 and card_details[0] != '0'):
+                    print(f"[PAYMENT] {addr} paid by card")
+                    self.database.update_order_paid_status(order_id, True)
+                    conn.send(b'!PAYMENT_SUCCESS')
+                else:
+                    conn.send(b'!PAYMENT_FAIL')
+        elif (self.database.check_paid_status(order_id) == 1):
+            conn.send(b'!PAYMENT_DONE')
 
     def handle_extend_request(self, conn, addr, request):
-        order_id = request['data']['order_id']
+        order_id = request['data']
+        print(order_id)
         flag = self.database.check_done_status(order_id)
-        if (flag == 1):
+        if (flag == 0):
+            time.sleep(0.01)
             conn.send(b'!EXTEND_TRUE')
-        elif(flag == 0):
+        elif(flag == 1):
+            time.sleep(0.01)
             conn.send(b'!EXTEND_FALSE')
-            
+
     def handle_extra_request(self, conn, addr, request):
+
         order_data = request['data']
         print(f"[ORDER_DETAIL] {addr} ordered extra {order_data}")
-        
+
         # Get the neccesary order information and insert to database
-        order_id = order_data['order_id']
+        order_id = order_data['id']
         order_detail = order_data['order']
-        self.database.insert_order(order_id, order_detail)
-        
+        self.database.insert_extra_order(order_id, order_detail)
+        self.database.update_total(order_id)
         # Calculate total price
         order_total_price = self.database.get_total_price(order_id)
         print(f"[ORDER_ID] {order_id}")
@@ -137,11 +156,11 @@ class Server:
             "id": order_id,
             "total_price": order_total_price
         }
-
+        print(client_order)
         conn.send(b'!ORDER_PRICE')
-        time.sleep(0.01)
+        time.sleep(0.05)
         conn.send(json.dumps(client_order).encode(FORMAT))
-            
+
     # Handle connection with client
     # conn is the connection
     # addr is the address of the client
@@ -151,8 +170,8 @@ class Server:
         connected = True
         while connected:
             # Need to tweak this more before calling because newly created database doesnt have any rows
-            # self.database.update_done_database()
-            # self.database.update_total_database()
+            self.database.update_done_database()
+            self.database.update_total_database()
             try:
                 msg = json.loads(conn.recv(BUFFER_SIZE).decode(FORMAT))
 
@@ -168,15 +187,16 @@ class Server:
                 elif (msg["header"] == COMMAND_PAYMENT):
                     print(f"[PAYMENT] {addr} paid")
                     self.handle_payment_request(conn, addr, msg)
-                    
+
                 elif (msg["header"] == COMMAND_EXTEND):
                     print(f'[EXTEND] {addr} wants to extend')
+                    print(msg)
                     self.handle_extend_request(conn, addr, msg)
-                    
+
                 elif (msg["header"] == COMMAND_EXTRA):
                     print(f'[EXTRA] {addr} ordered extra')
                     self.handle_extra_request(conn, addr, msg)
-                    
+
             except socket.error:
                 print(f"[ERROR] {addr} disconnected")
                 connected = False
@@ -194,5 +214,3 @@ if __name__ == '__main__':
         server.start()
     except KeyboardInterrupt:
         exit()
-        
-    
