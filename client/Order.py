@@ -27,6 +27,9 @@ def scroll_frame(main_frame, width):
     my_canvas.create_window((0, 0), window=second_frame, anchor="nw")
     return second_frame
 
+# option to order:
+
+
 def list_item(root, name, id):
     check_value = tk.StringVar()
     quantity_value = tk.StringVar()
