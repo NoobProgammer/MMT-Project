@@ -8,9 +8,11 @@ import Order
 import Pay
 import Color
 import getData
-from client import Client    
+from client import Client
 
-#show frame:
+# show frame:
+
+
 def show_menu_frame():
     menu_frame.tkraise()
     menu_btn.config(fg_color=Color.color["main_color"])
@@ -20,6 +22,7 @@ def show_menu_frame():
     pay_btn.config(fg_color=Color.color["main_color_disabled"])
     pay_btn.config(hover_color=Color.color["main_color_disabled"])
 
+
 def show_order_frame():
     order_frame.tkraise()
     order_btn.config(fg_color=Color.color["main_color"])
@@ -28,6 +31,7 @@ def show_order_frame():
     menu_btn.config(hover_color=Color.color["main_color_disabled"])
     pay_btn.config(fg_color=Color.color["main_color_disabled"])
     pay_btn.config(hover_color=Color.color["main_color_disabled"])
+
 
 def show_pay_frame():
     pay_frame.tkraise()
@@ -39,11 +43,21 @@ def show_pay_frame():
     order_btn.config(hover_color=Color.color["main_color_disabled"])
 
 
-if __name__ == "__main__":
-    # app = App()
-    # app.run()
+def receive_menu():
+    while True:
+        global data
+        global menu_frame
+        global order_frame
+        dataMenu = client.on_receive_menu()
+        data = getData.Data(dataMenu)
+        order_frame = Order.Order(
+            root, data, client.make_order, client.on_receive_order)
+        menu_frame = Menu.Menu(root, data)
+        show_menu_frame()
 
-    #create client
+
+if __name__ == "__main__":
+    # Create client
     client = Client()
     client.connect()
 
@@ -54,44 +68,46 @@ if __name__ == "__main__":
     root.geometry("500x800")
 
     # top Navigation bar:
-    menu_btn = ctk.CTkButton(master=root, text="Menu", 
-                            text_color=Color.color["dark"], 
-                            fg_color=Color.color["main_color"], 
-                            hover_color=Color.color["main_color"],
-                            corner_radius=0, command=show_menu_frame)
+    menu_btn = ctk.CTkButton(master=root, text="Menu",
+                             text_color=Color.color["dark"],
+                             fg_color=Color.color["main_color"],
+                             hover_color=Color.color["main_color"],
+                             corner_radius=0, command=show_menu_frame)
     menu_btn.place(x=0, y=0, width=166, height=50)
 
-    order_btn = ctk.CTkButton(master=root, text="Order", 
-                            text_color=Color.color["dark"],
-                            fg_color=Color.color["main_color_disabled"], 
-                            hover_color=Color.color["main_color_disabled"],
-                            corner_radius=0, command=show_order_frame)
+    order_btn = ctk.CTkButton(master=root, text="Order",
+                              text_color=Color.color["dark"],
+                              fg_color=Color.color["main_color_disabled"],
+                              hover_color=Color.color["main_color_disabled"],
+                              corner_radius=0, command=show_order_frame)
     order_btn.place(x=166, y=0, width=166, height=50)
 
-    pay_btn = ctk.CTkButton(master=root, text="Pay", 
+    pay_btn = ctk.CTkButton(master=root, text="Pay",
                             text_color=Color.color["dark"],
-                            fg_color=Color.color["main_color_disabled"], 
+                            fg_color=Color.color["main_color_disabled"],
                             hover_color=Color.color["main_color_disabled"],
                             corner_radius=0, command=show_pay_frame)
     pay_btn.place(x=332, y=0, width=166, height=50)
 
-    #get data from server:
     data = None
+    # Send a menu request
     client.request_menu()
     dataMenu = client.on_receive_menu()
     data = getData.Data(dataMenu)
 
-    #pay frame
-    pay_frame = Pay.Pay(root, client.make_payment, client.on_receive_payment_status)
+    # pay frame
+    pay_frame = Pay.Pay(root, client.make_payment,
+                        client.on_receive_payment_status)
     pay_frame.place(x=0, y=50, width=500, height=750)
 
-    #order frame
-    order_frame = Order.Order(root, data, client.make_order, client.on_receive_order, client.check_expiration, client.extend_order)
+    # order frame
+    order_frame = Order.Order(root, data, client.make_order,
+                              client.on_receive_order, client.check_expiration, client.extend_order)
     order_frame.place(x=0, y=50, width=500, height=750)
 
-    #menu frame:
+    # Menu frame:
     menu_frame = Menu.Menu(root, data)
     menu_frame.place(x=0, y=50, width=500, height=750)
-    # window in mainloop:
+
+    # Window in mainloop:
     root.mainloop()
-    

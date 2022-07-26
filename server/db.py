@@ -60,10 +60,6 @@ class Database:
         self.conn.commit()
 
     def insert_food(self, food):
-        # Convert image to string
-        # with open(img_path, "rb") as file:
-        #     converted_string = base64.b64encode(file.read())
-
         self.conn.execute(
             "INSERT INTO menu (name, price, description, image) VALUES (?, ?, ?, ?)",
             (food['name'], food['price'], food['description'], food['image'])
@@ -75,6 +71,7 @@ class Database:
             f"INSERT INTO orders (user_id, date, total) VALUES ('{user_id}', '{date}', 999999999999)")
         order_id = self.conn.execute(
             f"SELECT id FROM orders WHERE user_id = '{user_id}' AND date = '{date}'").fetchone()[0]
+
         for food in order:
             self.conn.execute(
                 f"INSERT INTO orders_detail (order_id, menu_id, quantity) VALUES ('{order_id}', '{food['id']}', '{food['quantity']}')")

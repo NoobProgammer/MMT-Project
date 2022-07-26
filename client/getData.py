@@ -1,10 +1,9 @@
 import tkinter as tk
-import time
 
-def Data(dataMenu):
-    print(dataMenu)
-    if (dataMenu == None):
+def Data(data_menu):
+    print(data_menu)
+    if (data_menu == None):
         return None
-    for item in dataMenu:
+    for item in data_menu:
         item["image"] = tk.PhotoImage(file=item["image"]).subsample(16, 16)
-    return dataMenu
+    return data_menu
