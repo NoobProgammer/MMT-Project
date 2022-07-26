@@ -2,9 +2,6 @@ import socket
 import json
 from datetime import datetime
 
-from requests import request
-
-
 # MESSAGE
 HEADER = 64
 FORMAT = "utf-8"
@@ -74,19 +71,15 @@ class Client:
         while True:
             msg = self.client.recv(1024)
             if (msg == b'!EXTEND_TRUE'):
-                print(1)
                 return 1
             elif (msg == b'!EXTEND_FALSE'):
-                print(0)
                 return 0
 
     def extend_order(self, order_id, order):
-
         order_data = {
             'id': order_id,
             'order': order
         }
-        print(order_data)
         request = self.encapsulate_request(COMMAND_EXTRA, order_data)
         self.client.send(request)
 
@@ -111,10 +104,8 @@ class Client:
     def on_receive_order(self):
         print('[WAITING] Waiting for order response')
         msg = self.client.recv(1024)
-        print("received header")
         if (msg == b'!ORDER_PRICE'):
             msg = self.client.recv(1024)
-            print("received data")
             order = json.loads(msg.decode(FORMAT))
             return order
 

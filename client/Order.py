@@ -1,10 +1,6 @@
-from time import sleep
 from tkinter import ttk
-from tkinter import PhotoImage
 from tkinter.messagebox import showwarning
 import tkinter as tk
-
-from pip import main
 
 # cart:
 data_order = []
