@@ -39,6 +39,8 @@ create_orders_detail_table_sql = """ CREATE TABLE IF NOT EXISTS orders_detail (
 
 create_table_queries = [create_users_table_sql,
                         create_menu_table_sql, create_orders_table_sql, create_orders_detail_table_sql]
+
+
 class Database:
     def __init__(self, db):
         self.conn = sqlite3.connect(db, check_same_thread=False)
@@ -81,10 +83,11 @@ class Database:
         self.conn.execute(
             f"UPDATE orders SET total = '{total}' WHERE id = '{order_id}'")
         self.conn.commit()
-    
+
     def insert_extra_order(self,  order_id, order):
         for food in order:
-            self.conn.execute(f"INSERT INTO orders_detail (order_id, menu_id, quantity) VALUES ('{order_id}', '{food['id']}', '{food['quantity']}')")
+            self.conn.execute(
+                f"INSERT INTO orders_detail (order_id, menu_id, quantity) VALUES ('{order_id}', '{food['id']}', '{food['quantity']}')")
             self.conn.commit()
 
     # Read section
@@ -106,31 +109,33 @@ class Database:
 
     def get_total_price(self, order_id):
         return self.conn.execute(f"SELECT total FROM orders WHERE id = '{order_id}'").fetchone()[0]
-    
+
     def check_done_status(self, order_id):
         return self.conn.execute(f"SELECT done FROM orders WHERE id = '{order_id}'").fetchone()[0]
-    
+
     def check_paid_status(self, order_id):
         return self.conn.execute(f"SELECT paid FROM orders WHERE id = '{order_id}'").fetchone()[0]
-        
 
     # Update section
     # These functions to updates every order in the database
 
     # Update total in database
+
     def update_total(self, order_id):
         total = self.conn.execute(
             f"SELECT SUM(menu.price * orders_detail.quantity) FROM orders_detail INNER JOIN menu ON orders_detail.menu_id = menu.id WHERE orders_detail.order_id = '{order_id}'").fetchone()[0]
         self.conn.execute(
             f"UPDATE orders SET total = '{total}' WHERE id = '{order_id}'")
         self.conn.commit()
+
     def update_total_database(self):
         print('UPDATING TOTAL DB')
         order_id_array = self.conn.execute('SELECT id FROM orders').fetchall()
-        for order_id in order_id_array:
-            self.update_total(order_id[0])
-        self.conn.commit()
-    
+        if(order_id_array is not None):
+            for order_id in order_id_array:
+                self.update_total(order_id[0])
+            self.conn.commit()
+
     # Update done in database
     def update_done(self, order_id):
         date = self.conn.execute(
@@ -147,20 +152,20 @@ class Database:
             self.conn.execute(
                 f"UPDATE orders SET done = 0 WHERE id = '{order_id}'")
             self.conn.commit()
-        
+
     def update_done_database(self):
         print('UPDATING DONE DB')
         order_id_array = self.conn.execute('SELECT id FROM orders').fetchall()
-        for order_id in order_id_array:
-            self.update_done(order_id[0])
-        self.conn.commit()
-        
-        
+        if (order_id_array is not None):
+            for order_id in order_id_array:
+                self.update_done(order_id[0])
+            self.conn.commit()
+
     def update_order_paid_status(self, order_id, is_paid):
         if (is_paid):
             self.conn.execute(
                 f"UPDATE orders SET paid = 1 WHERE id = '{order_id}'")
-            
+
     # Delete section
     def delete_food(self, food_id):
         self.conn.execute(
