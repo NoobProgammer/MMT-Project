@@ -128,9 +128,9 @@ class Database:
     def update_total_database(self):
         print('UPDATING TOTAL DB')
         order_id_array = self.conn.execute('SELECT id FROM orders').fetchall()
-        if (order_id_array is not None):
+        if(order_id_array is not None):
             for order_id in order_id_array:
-                self.update_total(order_id)
+                self.update_total(order_id[0])
             self.conn.commit()
 
     # Update done in database
@@ -155,7 +155,7 @@ class Database:
         order_id_array = self.conn.execute('SELECT id FROM orders').fetchall()
         if (order_id_array is not None):
             for order_id in order_id_array:
-                self.update_done(order_id)
+                self.update_done(order_id[0])
             self.conn.commit()
 
     def update_order_paid_status(self, order_id, is_paid):
