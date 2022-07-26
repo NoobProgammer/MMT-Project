@@ -14,25 +14,20 @@ A simple booking application that allows users to book a table for a restaurant.
 -   Implements a payment system to allow users to pay for their bookings
 
 ## How to run the application?
-
 1. Locate to server folder and run the db.py to populate the database:
-
     ```
     python3 db.py
     ```
-
 2. Run the server:
 
     ```
     python3 server.py
     ```
-
 3. Locate to the client folder and run the App.py file on a different terminal:
 
     ```
     python3 App.py
     ```
-
 4. Type in the ip address and the port number of the server:
 
     ```
