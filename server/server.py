@@ -1,4 +1,3 @@
-from multiprocessing.connection import Client
 import socket
 import threading
 import json
@@ -6,7 +5,6 @@ import os
 import time
 import glob
 from db import Database
-from datetime import datetime
 
 # MESSAGE
 FORMAT = "utf-8"
@@ -25,10 +23,8 @@ BUFFER_SIZE = 1024
 
 class Server:
     def __init__(self):
-        # socket.gethostbyname(socket.gethostname()) or
-
-        self.ip = '127.0.0.3'
-
+        #socket.gethostbyname(socket.gethostname()) or 
+        self.ip = '127.0.0.1'
         self.port = 12345
         self.addr = (self.ip, self.port)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,18 +53,18 @@ class Server:
         conn.send(b'!END_MENU_LIST')
         time.sleep(0.001)
 
-        # Iterate ordered image list and send image to client
-        img_files = sorted(filter(os.path.isfile, glob.glob("./img/" + '*')))
-        for file in img_files:
+        # Iterate image and send image to client
+        dir_name = './img/'
+        files = sorted(filter(os.path.isfile, glob.glob(dir_name + '*')))
+        for file in files:
             conn.send(b'!MENU_IMG')
             time.sleep(0.01)
-
             f = open(file, 'rb')
-            bytes = f.read(BUFFER_SIZE)
+            bytes = f.read(1024)
             while bytes:
                 conn.send(bytes)
-                bytes = f.read(BUFFER_SIZE)
-
+                bytes = f.read(1024)
+            
             f.close()
             time.sleep(0.05)
             conn.send(b'!END_IMG')

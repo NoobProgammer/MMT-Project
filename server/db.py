@@ -188,31 +188,31 @@ if __name__ == '__main__':
     db.insert_food({
         'name': 'Pizza',
         'price': 100,
-        'description': 'This is a pizza',
+        'description': 'Delicious cheese pizza with tomato sauce from Italy',
         'image': 'img/1.jpg'
     })
     db.insert_food({
         'name': 'Pasta',
         'price': 200,
-        'description': 'This is a pasta',
+        'description': 'Delicious pasta with tomato sauce from Italy',
         'image': 'img/2.jpg'
     })
     db.insert_food({
         'name': 'Salad',
         'price': 300,
-        'description': 'This is a salad',
+        'description': 'A salad a day keeps the doctor away, enjoy it!',
         'image': 'img/3.jpg'
     })
     db.insert_food({
         'name': 'Rice',
         'price': 400,
-        'description': 'This is rice',
+        'description': 'Fancy for a traditional Vietnamese rice? Order one now and enjoy!',
         'image': 'img/4.jpg'
     })
     db.insert_food({
         'name': 'Chicken',
         'price': 500,
-        'description': 'This is Chicken',
+        'description': 'Look at them wings, they are so tasty!',
         'image': 'img/5.jpg'
     })
 
