@@ -15,22 +15,25 @@ A simple booking application that allows users to book a table for a restaurant.
 *LATER: Add screenshots of the application*
 
 ## How to run the application?
+1. Localte to server folder and run the db.py to populate the database:
+    ```
+    cd ./server
+    python3 db.py
+    ```
 
-The application comes with a pre-populated menu in the database and images of the menu. Custom run is not implemented yet *(will update later)*
-
-1. Run the server:
+2. Run the server:
 
     ```
     cd ./server
     python3 server.py
     ```
-2. Run the client on a different terminal:
+3. Run the client on a different terminal:
 
     ```
     cd ./client
     python3 App.py
     ```
-3. Type in the ip address and the port number of the server:
+4. Type in the ip address and the port number of the server:
 
     ```
     Enter the server IP: *IP goes here*
