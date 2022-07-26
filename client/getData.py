@@ -1,9 +1,11 @@
-import tkinter as tk
+from PIL import Image, ImageTk
 
-def Data(data_menu):
-    print(data_menu)
-    if (data_menu == None):
+def Data(dataMenu):
+    print(dataMenu)
+    if (dataMenu == None):
         return None
-    for item in data_menu:
-        item["image"] = tk.PhotoImage(file=item["image"]).subsample(16, 16)
-    return data_menu
+    for item in dataMenu:
+        image = Image.open(item["image"])
+        image = image.resize((100, 100), Image.ANTIALIAS)
+        item["image"] = ImageTk.PhotoImage(image)
+    return dataMenu
