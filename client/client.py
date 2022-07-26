@@ -1,15 +1,9 @@
 import socket
 import json
-import threading
-import time
-from struct import unpack
 from datetime import datetime
-
 from requests import request
-  
 
-# MESSAGE
-HEADER = 64
+
 FORMAT = "utf-8"
 DISCONNECT_MESSAGE = "!DISCONNECT"
 USER_ID = "TABLE001"
@@ -19,6 +13,7 @@ COMMAND_ORDER = "!ORDER"
 COMMAND_PAYMENT = "!PAYMENT"
 COMMAND_EXTEND = "!EXTEND"
 COMMAND_EXTRA = "!EXTRA"
+
 
 class Client:
     def __init__(self):
@@ -52,7 +47,7 @@ class Client:
 
     def close_connection(self):
         self.client.close()
-            
+
     def encapsulate_request(self, header, data):
         return json.dumps({"header": header, "data": data}).encode(FORMAT)
 
@@ -61,7 +56,6 @@ class Client:
         self.client.send(request)
 
     def make_order(self, order):
-
         order_data = {
             "user_id": USER_ID,
             "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
@@ -70,7 +64,6 @@ class Client:
         request = self.encapsulate_request(COMMAND_ORDER, order_data)
         self.client.send(request)
 
-          
     def check_expiration(self, order_id):
         request = self.encapsulate_request(COMMAND_EXTEND, order_id)
         self.client.send(request)
@@ -83,19 +76,20 @@ class Client:
             elif (msg == b'!EXTEND_FALSE'):
                 print(0)
                 return 0
-            
+
     def extend_order(self, order_id, order):
-        
+
         order_data = {
             'id': order_id,
-            'order' : order
+            'order': order
         }
         print(order_data)
         request = self.encapsulate_request(COMMAND_EXTRA, order_data)
         self.client.send(request)
 
-    def make_payment(self, order_id, option, card_details = None):
-        request = self.encapsulate_request(COMMAND_PAYMENT, {"order_id": order_id, "option": option, "card_details": card_details})
+    def make_payment(self, order_id, option, card_details=None):
+        request = self.encapsulate_request(COMMAND_PAYMENT, {
+                                           "order_id": order_id, "option": option, "card_details": card_details})
         self.client.send(request)
 
     def on_receive_payment_status(self):
@@ -120,9 +114,7 @@ class Client:
             print("received data")
             order = json.loads(msg.decode(FORMAT))
             return order
-                
 
-        
     def on_receive_menu(self):
         file_index = 1
         print('[WAITING] Waiting for menu response')
@@ -137,7 +129,7 @@ class Client:
                         print('[RECEIVED] Menu received')
                         menu = json.loads(msg.decode(FORMAT))
                     else:
-                        break       
+                        break
             elif (msg == b'!MENU_IMG'):
                 with open(f"./img/{file_index}.jpg", "wb") as f:
                     while True:
@@ -156,5 +148,3 @@ class Client:
         for item in menu:
             message += f"{item['name']} - {item['price']} VND\n"
         return message
-
-    
