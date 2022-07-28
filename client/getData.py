@@ -1,7 +1,10 @@
-import tkinter as tk
+from PIL import Image, ImageTk
 
 def Data(dataMenu):
-    print(dataMenu)
+    if (dataMenu == None):
+        return None
     for item in dataMenu:
-        item["image"] = tk.PhotoImage(file=item["image"]).subsample(10, 10)
+        image = Image.open(item["image"])
+        image = image.resize((100, 100), Image.ANTIALIAS)
+        item["image"] = ImageTk.PhotoImage(image)
     return dataMenu
