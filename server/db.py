@@ -174,54 +174,95 @@ class Database:
             "DELETE FROM menu"
         )
         self.conn.commit()
+    
+    def populate(self):
+      for query in create_table_queries:
+        self.create_table(query)
+
+      self.insert_food({
+          'name': 'Pizza',
+          'price': 100,
+          'description': 'Delicious cheese pizza with tomato sauce from Italy',
+          'image': 'img/1.jpg'
+      })
+      self.insert_food({
+          'name': 'Pasta',
+          'price': 200,
+          'description': 'Delicious pasta with tomato sauce from Italy',
+          'image': 'img/2.jpg'
+      })
+      self.insert_food({
+          'name': 'Salad',
+          'price': 300,
+          'description': 'A salad a day keeps the doctor away, enjoy it!',
+          'image': 'img/3.jpg'
+      })
+      self.insert_food({
+          'name': 'Rice',
+          'price': 400,
+          'description': 'Fancy for a traditional Vietnamese rice? Order one now and enjoy!',
+          'image': 'img/4.jpg'
+      })
+      self.insert_food({
+          'name': 'Chicken',
+          'price': 500,
+          'description': 'Look at them wings, they are so tasty!',
+          'image': 'img/5.jpg'
+      })
+
+      # Imagine we have only six tables
+      table_id = ['TABLE001', 'TABLE002', 'TABLE003',
+                  'TABLE004', 'TABLE005', 'TABLE006']
+      for id in table_id:
+          self.conn.execute(f"INSERT INTO users (id) VALUES ('{id}')")
 
 
-if __name__ == '__main__':
-    db = Database('./restaurant.db')
-    # Run code below only once to initiate database
+# if __name__ == '__main__':
+#     db = Database('./restaurant.db')
+#     # Run code below only once to initiate database
 
-    # Create Tables
-    for query in create_table_queries:
-        db.create_table(query)
+#     # Create Tables
+#     for query in create_table_queries:
+#         db.create_table(query)
 
-    db.insert_food({
-        'name': 'Pizza',
-        'price': 100,
-        'description': 'Delicious cheese pizza with tomato sauce from Italy',
-        'image': 'img/1.jpg'
-    })
-    db.insert_food({
-        'name': 'Pasta',
-        'price': 200,
-        'description': 'Delicious pasta with tomato sauce from Italy',
-        'image': 'img/2.jpg'
-    })
-    db.insert_food({
-        'name': 'Salad',
-        'price': 300,
-        'description': 'A salad a day keeps the doctor away, enjoy it!',
-        'image': 'img/3.jpg'
-    })
-    db.insert_food({
-        'name': 'Rice',
-        'price': 400,
-        'description': 'Fancy for a traditional Vietnamese rice? Order one now and enjoy!',
-        'image': 'img/4.jpg'
-    })
-    db.insert_food({
-        'name': 'Chicken',
-        'price': 500,
-        'description': 'Look at them wings, they are so tasty!',
-        'image': 'img/5.jpg'
-    })
+#     db.insert_food({
+#         'name': 'Pizza',
+#         'price': 100,
+#         'description': 'Delicious cheese pizza with tomato sauce from Italy',
+#         'image': 'img/1.jpg'
+#     })
+#     db.insert_food({
+#         'name': 'Pasta',
+#         'price': 200,
+#         'description': 'Delicious pasta with tomato sauce from Italy',
+#         'image': 'img/2.jpg'
+#     })
+#     db.insert_food({
+#         'name': 'Salad',
+#         'price': 300,
+#         'description': 'A salad a day keeps the doctor away, enjoy it!',
+#         'image': 'img/3.jpg'
+#     })
+#     db.insert_food({
+#         'name': 'Rice',
+#         'price': 400,
+#         'description': 'Fancy for a traditional Vietnamese rice? Order one now and enjoy!',
+#         'image': 'img/4.jpg'
+#     })
+#     db.insert_food({
+#         'name': 'Chicken',
+#         'price': 500,
+#         'description': 'Look at them wings, they are so tasty!',
+#         'image': 'img/5.jpg'
+#     })
 
-    # Imagine we have only six tables
-    table_id = ['TABLE001', 'TABLE002', 'TABLE003',
-                'TABLE004', 'TABLE005', 'TABLE006']
-    for id in table_id:
-        db.conn.execute(f"INSERT INTO users (id) VALUES ('{id}')")
+#     # Imagine we have only six tables
+#     table_id = ['TABLE001', 'TABLE002', 'TABLE003',
+#                 'TABLE004', 'TABLE005', 'TABLE006']
+#     for id in table_id:
+#         db.conn.execute(f"INSERT INTO users (id) VALUES ('{id}')")
 
-    # menu = db.get_menu()
+#     # menu = db.get_menu()
 
-    # with open('./string.txt', 'w') as file:
-    #     file.write(menu[0]['image'].decode('utf-8'))
+#     # with open('./string.txt', 'w') as file:
+#     #     file.write(menu[0]['image'].decode('utf-8'))
