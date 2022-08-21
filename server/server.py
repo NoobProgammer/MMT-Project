@@ -29,6 +29,7 @@ class Server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(self.addr)
         self.database = Database('restaurant.db')
+        self.database.populate()
 
     def start(self):
         self.server.listen(5)
