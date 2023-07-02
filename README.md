@@ -1,4 +1,4 @@
-# MMT-Project
+# py-diner
 
 A simple booking application that allows users to book a table for a restaurant. This project was done as part of the course work for the module CSC10008 - Networking at HCMUS. This project is built with Python to demonstrate the use of sockets and the TCP Protocol.
 
