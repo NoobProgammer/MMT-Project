@@ -6,9 +6,9 @@ A simple booking application that allows users to book a table for a restaurant.
 
 The application has the following features:
 
--   The server can accept multiple connections
--   Implements a database to store the menu and the bookings
--   Users can view the menu (with images) and make bookings
+-   The server can accept multiple connections.
+-   Implements built-in SQLite database to store the menu and the bookings.
+-   Users can view the menu (with images) and make bookings.
 -   Implements a payment system to allow users to pay for their bookings
 
 ## Quick start
