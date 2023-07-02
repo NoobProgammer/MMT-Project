@@ -1,15 +1,15 @@
 # py-diner
 
-A simple booking application that allows users to book a table for a restaurant. This project was done as part of the course work for the module CSC10008 - Networking at HCMUS. This project is built with Python to demonstrate the use of sockets and the TCP Protocol.
+A Python booking application that allows users to book a table for a restaurant, implementing sockets and the TCP protocol. The project was done as part of the course work for the module CSC10008 - Networking at HCMUS. 
 
 ## Features
 
 The application has the following features:
 
 -   The server can accept multiple connections.
--   Implements built-in SQLite database to store the menu and the bookings.
+-   Implemented built-in SQLite database to store the menu and the bookings.
 -   Users can view the menu (with images) and make bookings.
--   Implements a payment system to allow users to pay for their bookings
+-   Implemented a payment system to allow users to pay for their bookings.
 
 ## Quick start
 
